@@ -6,8 +6,8 @@ var Schema = mongoose.Schema;
 var SupplierSchema = new Schema({
   name: {type: String, required: true},
   address: {type: String, required: true},
-  email: {type: String, min: 10, required: true},
-  phone: {type: String, min: 10, required: true},
+  email: {type: String, min: 5, required: true},
+  phone: {type: String, min: 5, required: true},
   entry_date: {type: Date, required: true, default: Date.now}
 });
 

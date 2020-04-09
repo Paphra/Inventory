@@ -133,10 +133,10 @@ module.exports = (app=express())=>{
    */
   // create branch
   app.post('/branches', checkuser, [
-    body('name', 'Branch Name  Must not be empty.').trim().isLength({ min: 3 }),
-    body('email', 'Branch Email  Must not be empty.').trim().isLength({ min: 3 }),
-    body('phone', 'Branch Phone  Must not be empty.').trim().isLength({ min: 3 }),
-    body('address', 'Branch Address  Must not be empty.').trim().isLength({ min: 3 }),
+    body('name', 'Branch Name  Must not be empty.').trim().isLength({ min: 1 }),
+    body('email', 'Branch Email  Must not be empty.').trim().isLength({ min: 1 }),
+    body('phone', 'Branch Phone  Must not be empty.').trim().isLength({ min: 1 }),
+    body('address', 'Branch Address  Must not be empty.').trim().isLength({ min: 1 }),
     check('*').escape(),
     (req, res, next)=>{
       let errors = validationResult(req);
@@ -164,10 +164,10 @@ module.exports = (app=express())=>{
 
   // update brnach
   app.post('/branches/:id', checkuser, [
-    body('name', 'Branch Name  Must not be empty.').trim().isLength({ min: 3 }),
-    body('email', 'Branch Email  Must not be empty.').trim().isLength({ min: 3 }),
-    body('phone', 'Branch Phone  Must not be empty.').trim().isLength({ min: 3 }),
-    body('address', 'Branch Address  Must not be empty.').trim().isLength({ min: 3 }),
+    body('name', 'Branch Name  Must not be empty.').trim().isLength({ min: 1 }),
+    body('email', 'Branch Email  Must not be empty.').trim().isLength({ min: 1 }),
+    body('phone', 'Branch Phone  Must not be empty.').trim().isLength({ min: 1 }),
+    body('address', 'Branch Address  Must not be empty.').trim().isLength({ min: 1 }),
     check('*').escape(),
     (req, res, next) => {
       let errors = validationResult(req);
@@ -206,12 +206,12 @@ module.exports = (app=express())=>{
    */
   // create worker
   app.post('/workers', checkuser, [
-    body('first_name', 'First Name Must not be empty.').trim().isLength({ min: 3 }),
-    body('last_name', 'Last Name Must not be empty.').trim().isLength({ min: 3 }),
-    body('email', 'Email Must not be empty.').trim().isLength({ min: 5 }),
-    body('phone', 'Phone Must not be empty.').trim().isLength({ min: 5 }),
-    body('branch', 'Branch Must not be empty.').trim().isLength({ min: 3 }),
-    body('position', 'Position Must not be empty.').trim().isLength({ min: 3 }),
+    body('first_name', 'First Name Must not be empty.').trim().isLength({ min: 1 }),
+    body('last_name', 'Last Name Must not be empty.').trim().isLength({ min: 1 }),
+    body('email', 'Email Must not be empty.').trim().isLength({ min: 1 }),
+    body('phone', 'Phone Must not be empty.').trim().isLength({ min: 1 }),
+    body('branch', 'Branch Must not be empty.').trim().isLength({ min: 1 }),
+    body('position', 'Position Must not be empty.').trim().isLength({ min: 1 }),
     check('*').escape(),
     (req, res, next)=>{
       let errors = validationResult(req);
@@ -262,12 +262,12 @@ module.exports = (app=express())=>{
   });
   // update worker
   app.post('/workers/:id', checkuser, [
-    body('first_name', 'First Name Must not be empty.').trim().isLength({ min: 5 }),
-    body('last_name', 'Last Name Must not be empty.').trim().isLength({ min: 5 }),
-    body('email', 'Email Must not be empty.').trim().isLength({ min: 5 }),
-    body('phone', 'Phone Must not be empty.').trim().isLength({ min: 5 }),
-    body('branch', 'Branch Must not be empty.').trim().isLength({ min: 3 }),
-    body('position', 'Position Must not be empty.').trim().isLength({ min: 3 }),
+    body('first_name', 'First Name Must not be empty.').trim().isLength({ min: 1 }),
+    body('last_name', 'Last Name Must not be empty.').trim().isLength({ min: 1 }),
+    body('email', 'Email Must not be empty.').trim().isLength({ min: 1 }),
+    body('phone', 'Phone Must not be empty.').trim().isLength({ min: 1 }),
+    body('branch', 'Branch Must not be empty.').trim().isLength({ min: 1 }),
+    body('position', 'Position Must not be empty.').trim().isLength({ min: 1 }),
     check('*').escape(),
     (req, res, next) => {
       let errors = validationResult(req);
@@ -326,10 +326,10 @@ module.exports = (app=express())=>{
    */
   // create supplier
   app.post('/suppliers', checkuser, [
-    body('name', 'Supplier Name  Must not be empty.').trim().isLength({ min: 3 }),
-    body('email', 'Supplier Email  Must not be empty.').trim().isLength({ min: 3 }),
-    body('phone', 'Supplier Phone  Must not be empty.').trim().isLength({ min: 3 }),
-    body('address', 'Supplier Address  Must not be empty.').trim().isLength({ min: 3 }),
+    body('name', 'Supplier Name  Must not be empty.').trim().isLength({ min: 1 }),
+    body('email', 'Supplier Email  Must not be empty.').trim().isLength({ min: 1 }),
+    body('phone', 'Supplier Phone  Must not be empty.').trim().isLength({ min: 1 }),
+    body('address', 'Supplier Address  Must not be empty.').trim().isLength({ min: 1 }),
     check('*').escape(),
     (req, res, next) => {
       let errors = validationResult(req);
@@ -356,10 +356,10 @@ module.exports = (app=express())=>{
   });
   // update supplier
   app.post('/suppliers/:id', checkuser, [
-    body('name', 'Supplier Name  Must not be empty.').trim().isLength({ min: 3 }),
-    body('email', 'Supplier Email  Must not be empty.').trim().isLength({ min: 3 }),
-    body('phone', 'Supplier Phone  Must not be empty.').trim().isLength({ min: 3 }),
-    body('address', 'Supplier Address  Must not be empty.').trim().isLength({ min: 3 }),
+    body('name', 'Supplier Name  Must not be empty.').trim().isLength({ min: 1 }),
+    body('email', 'Supplier Email  Must not be empty.').trim().isLength({ min: 1 }),
+    body('phone', 'Supplier Phone  Must not be empty.').trim().isLength({ min: 1 }),
+    body('address', 'Supplier Address  Must not be empty.').trim().isLength({ min: 1 }),
     check('*').escape(),
     (req, res, next) => {
       let errors = validationResult(req);

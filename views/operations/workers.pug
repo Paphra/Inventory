@@ -41,12 +41,12 @@ block content
                         label(for="first_name") First Name: 
                         input#first_name.form-control(
                           type="text" placeholder='Worker\'s First Name' 
-                          name='first_name' required='true' 
+                          name='first_name' required='true' min=3
                           value=(return_item?return_item.first_name:''))
                     .col-sm-6
                       .form-group
                         label(for="last_name") Last Name: 
-                        input#last_name.form-control(
+                        input#last_name.form-control( min=3
                           type="text" placeholder='Worker\'s Last Name'
                           name='last_name' required='true'
                           value=(return_item?return_item.last_name:''))
@@ -103,7 +103,7 @@ block content
                         label(for="username") Username: 
                         input#username.form-control(
                           type="text" placeholder='Enter Username' 
-                          name='username' disabled=true
+                          name='username' disabled=true min=5
                           value=(return_item?return_item.username:''))
 
                     .col-md-6
@@ -126,7 +126,7 @@ block content
                         label(for="password") Password: 
                         input#password.form-control(
                           type="password" placeholder='Worker\'s Password'
-                          name='password' disabled=true
+                          name='password' disabled=true min=5
                           value=(return_item?return_item.password:''))
 
                     .col-md-6
@@ -134,7 +134,7 @@ block content
                         label(for="confirm_password") Confirm Password: 
                         input#confirm_password.form-control( onKeyUp="passwordCheck(this.value)"
                           type="password" placeholder='Confirm Password'
-                          name='confirm_password' disabled=true
+                          name='confirm_password' disabled=true min=5
                           value=(return_item?return_item.confirm_password:''))
                         label#password_confirm
 
@@ -216,7 +216,7 @@ block content
                         .col-sm-6
                           .form-group
                             label(for="first_name") First Name: 
-                            input#first_name.form-control(
+                            input#first_name.form-control( min=3
                               type="text" placeholder='Worker\'s First Name' 
                               name='first_name' required='true'
                               value=worker.first_name)
@@ -225,7 +225,7 @@ block content
                             label(for="last_name") Last Name: 
                             input#last_name.form-control(
                               type="text" placeholder='Worker\'s Last Name'
-                              name='last_name' required='true'
+                              name='last_name' required='true' min=3
                               value=worker.last_name)
                       .row
                         .col-md-6
@@ -277,7 +277,7 @@ block content
                         .col-md-6
                           .form-group
                             label(for="username_u") Username: 
-                            input#username_u.form-control(
+                            input#username_u.form-control(min=5
                               type="text" placeholder='Enter Username' 
                               name='username' disabled=(!worker.user)
                               value=worker.username)
@@ -300,7 +300,7 @@ block content
                         .col-md-6
                           .form-group
                             label(for="password_u") Password: 
-                            input#password_u.form-control(
+                            input#password_u.form-control( min=5
                               type="password" placeholder='Worker\'s Password'
                               name='password' disabled=(!worker.user)
                               value=worker.password)
@@ -308,7 +308,7 @@ block content
                           .form-group
                             label(for="confirm_password") Confirm Password: 
                             input#confirm_password_u.form-control( onKeyUp="passwordCheckU(this.value)"
-                              type="password" placeholder='Confirm Password'
+                              type="password" placeholder='Confirm Password' min=5
                               name='confirm_password' disabled=(!worker.user)
                               value=worker.password)
                             label#password_confirm_u

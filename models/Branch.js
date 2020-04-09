@@ -6,7 +6,7 @@ var Schema = mongoose.Schema
 var BranchSchema = new Schema({
   name: { type: String, required: true },
   address: { type: String, required: true },
-  email: {type: String, required: true, min: 10 },
+  email: {type: String, required: true, min: 5 },
   phone: {type: String, required: true, min: 3},
   entryDate: { type: Date, required: true, default: Date.now }
 });

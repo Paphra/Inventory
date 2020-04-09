@@ -4,8 +4,8 @@ var moment = require('moment');
 var Schema = mongoose.Schema;
 
 var WorkerSchema = new Schema({
-  first_name: {type: String, min: 3, required: true},
-  last_name: {type: String, min: 3, required: true},
+  first_name: {type: String, min: 1, required: true},
+  last_name: {type: String, min: 1, required: true},
   email: {type: String, min: 5, required: true},
   phone: {type: String, min: 5, required: true},
   branch: {type: Schema.Types.ObjectId, ref: 'Branch', required: true },
@@ -13,7 +13,7 @@ var WorkerSchema = new Schema({
   user: { type: Boolean, default: false, required: true },
   role: { type: Schema.Types.ObjectId, ref: 'Role' },
   username: {type: String, min: 5, max: 15},
-  password: {type: String, min: 8},
+  password: {type: String, min: 5},
   logged: {type: Boolean, default: false },
   login_time: {type: Date},
   logout_time: {type: Date},
