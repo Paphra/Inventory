@@ -1,0 +1,27 @@
+extends ../layout
+
+block content
+
+  h1 #{title}
+
+  blockquote
+    h4 This shows all the business related Operations
+  
+  .container
+    .row
+    
+      .col-sm-6
+        h4 Internal Opeations
+        ul.list-group
+          li.list-group-item
+            a(href='/branches') Branches
+          li.list-group-item
+            a(href="/workers") Employees
+          li.list-group-item
+            a(href='/users') System Users
+
+      .col-sm-6
+        h4 External Operations
+        ul.list-group
+          li.list-group-item
+            a(href='/suppliers') Stock Suppliers

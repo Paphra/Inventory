@@ -1,0 +1,207 @@
+extends ../layout
+
+block content
+
+  h1 #{title}
+  
+  .container
+    .row
+      .col-sm-8
+        blockquote
+          p This shows the list of all the Branches of the Business
+      
+      .col-sm-4
+        button.btn.btn-success.btn-block(
+          data-toggle='modal' data-target='#add') New Branch
+
+      .col-sm-12
+        #add.modal.fade(
+          tab-index='-1' role='dialog' aria-labelby='AddNewBranch' 
+          aria-hidden='true')
+          
+          .modal-dialog(role='document')
+            .modal-content
+              - let url = (return_item?return_item.url:'')
+              form(action=(url?url:'/branches'), method="post")
+                .modal-header
+                  h4.modal-title #{return_item?'Update':'Add New'} Branch
+                  button.close(type='button' data-dismiss='modal' aria-label='Close')
+                    span(aria-hidden='true') &times;
+                .modal-body
+                  .errors
+                    if return_item
+                      if return_item.errors
+                        ul
+                          each err in return_item.errors
+                            li= err.msg
+
+                  .form-group
+                    label(for="name") Branch Name: 
+                    input#name.form-control(
+                      type="text" placeholder='Name Of the Branch' name='name' 
+                      required='true' value=(return_item?return_item.name:''))
+                  .row
+                    .col-md-6
+                      .form-group
+                        label(for="email") Email Address: 
+                        input#email.form-control(
+                          type="email" placeholder='Branch\'s Email' name='email' 
+                          required='true' value=(return_item?return_item.email:''))
+                    .col-md-6
+                      .form-group
+                        label(for="phone") Phone Number: 
+                        input#phon.form-control(
+                          type="tel" placeholder='Branch\'s Phone' name='phone' 
+                          required='true' value=(return_item?return_item.phone:''))
+                      
+                  .form-group
+                    label(for='address') Address:
+                    textarea#address.form-control(
+                      name="address", rows='3' placeholder='Enter Branch Address'
+                      value=(return_item?return_item.address:''))
+
+                .modal-footer
+                  button.btn.btn-success(type='submit') Save 
+                  button.btn.btn-danger(type='button' data-dismiss='modal') Close
+  
+  .container
+    .row
+      .col-sm-3
+      .col-sm-6
+        if branches.length
+          each branch in branches
+            ul.list-group
+              li.list-group-item
+                .row
+                  .col-sm-8
+                    h4 #{branch.name}
+                  .col-sm-4
+                    span.btn.btn-primary.glyphicon.glyphicon-pencil(
+                      data-toggle='modal' data-target='#edit_' + branch._id)
+                    span.btn.btn-success.glyphicon.glyphicon-eye-open(
+                      data-toggle='modal' data-target='#view_' + branch._id)
+                    - let hb = false
+                    - let id = branch._id.toString();
+                    each flow in flows
+                      if flow.branch.toString() === id
+                       - hb = true
+                    
+                    each worker in workers
+                      if worker.branch.toString() === id
+                        - hb = true
+
+                    if !hb
+                      span.btn.btn-danger.glyphicon.glyphicon-remove(
+                        data-toggle='modal' data-target='#delete_' + branch._id)
+                
+                // editing
+                .modal.fade(id='edit_'+ branch._id
+                  tab-index='-1' role='dialog' aria-labelby='EditBranch' 
+                  aria-hidden='true')
+                  
+                  .modal-dialog(role='document')
+                    .modal-content
+                      form(action=branch.url, method="post")
+                        .modal-header
+                          h4.modal-title Edit Branch
+                          button.close(type='button' data-dismiss='modal' aria-label='Close')
+                            span(aria-hidden='true') &times;
+                        .modal-body
+                          .form-group
+                            label(for="name") Branch Name: 
+                            input#name.form-control(
+                              type="text" placeholder='Name Of the Bracnh' name='name' 
+                              required='true' value=branch.name)
+                          .row
+                            .col-md-6
+                              .form-group
+                                label(for="email") Email Address: 
+                                input#email.form-control(
+                                  type="email" placeholder='Branch\'s Email' name='email' 
+                                  required='true' value=branch.email)
+                            .col-md-6
+                              .form-group
+                                label(for="phone") Phone Number: 
+                                input#phon.form-control(
+                                  type="tel" placeholder='Branch\'s Phone' name='phone' 
+                                  required='true' value=branch.phone)
+                              
+                          .form-group
+                            label(for='address') Address:
+                            textarea#address.form-control(
+                              name="address", rows='3' 
+                              placeholder='Enter Branch Address') #{branch.address}
+
+                        .modal-footer
+                          button.btn.btn-success(type='submit') Save 
+                          button.btn.btn-danger(type='button' data-dismiss='modal') Close
+                
+                // viewing
+                .modal.fade(id='view_' + branch._id
+                  tab-index='-1' role='dialog' aria-labelby='ViewBranchDetails' 
+                  aria-hidden='true')
+                  .modal-dialog(role='document')
+                    .modal-content
+                      .modal-header
+                        h4.modal-title Branch Details
+                        button.close(type='button' data-dismiss='modal' aria-label='Close')
+                          span(aria-hidden='true') &times;
+                      .modal-body
+                        .row
+                          .col-sm-3.text-right
+                            p #[strong Name: ]
+                          .col-sm-9
+                            p #{branch.name}
+                        .row
+                          .col-sm-3.text-right
+                            p #[strong Email: ]
+                          .col-sm-9
+                            p #{branch.email}
+                        .row
+                          .col-sm-3.text-right
+                            p #[strong Phone: ]
+                          .col-sm-9
+                            p #{branch.phone}
+                        .row
+                          .col-sm-3.text-right
+                            p #[strong Address: ]
+                          .col-sm-9
+                            p #{branch.address}
+                        .row
+                          .col-sm-3.text-right
+                            p #[strong Entered On: ]
+                          .col-sm-9
+                            p #{branch.entryDateFormated}
+                            
+                      .modal-footer
+                        button.btn.btn-secondary(type='button' data-dismiss='modal') Close
+                
+                // deleting
+                  a specific branch from the system
+                  This is not allow if the branch is attached to other items.
+                .modal.fade(id='delete_' + branch._id
+                  tab-index='-1' role='dialog' aria-labelby='AddNewBranch' 
+                  aria-hidden='true')
+                  
+                  .modal-dialog(role='document')
+                    .modal-content
+                      form(action=branch.url+'/delete', method="post")
+                        .modal-header
+                          h4.modal-title Delete Branch: #{branch.name}
+                          button.close(type='button' data-dismiss='modal' aria-label='Close')
+                            span(aria-hidden='true') &times;
+                        .modal-body
+                          .form-group
+                            p #[strong Located: ] #{branch.address}
+                            p #[strong Are you sure you wnt to delete this Branch?] 
+                            input#branchid.form-control(
+                              type='hidden' name='branchid' required='true'
+                              value=branch._id)
+                        .modal-footer
+                          button.btn.btn-danger(type='submit') Delete 
+                          button.btn.btn-secondary(type='button' data-dismiss='modal') Cancel
+              
+        else
+          h4
+            i There are no Branches in the System. Please, add some Branches
+      .col-sm-3

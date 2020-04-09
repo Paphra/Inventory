@@ -1,0 +1,202 @@
+extends ../layout
+
+block content
+
+  h1 #{title}
+  
+  .container
+    .row
+      .col-sm-8
+        blockquote
+          p This shows the list of all the Suppliers of the Business
+      
+      .col-sm-4
+        button.btn.btn-success.btn-block(
+          data-toggle='modal' data-target='#add') New Supplier
+
+      .col-sm-12
+        #add.modal.fade(
+          tab-index='-1' role='dialog' aria-labelby='AddNewBranch' 
+          aria-hidden='true')
+          
+          .modal-dialog(role='document')
+            .modal-content
+              - let url = (return_item?return_item.url:'')
+              form(action=(url?url:"/suppliers"), method="post")
+                .modal-header
+                  h4.modal-title #{return_item?'Update':'Add New'} Supplier
+                  button.close(type='button' data-dismiss='modal' aria-label='Close')
+                    span(aria-hidden='true') &times;
+                .modal-body
+                  .errors
+                    if return_item
+                      if return_item.errors
+                        ul
+                          each err in return_item.errors
+                            li= err.msg
+
+                  .form-group
+                    label(for="name") Supplier Name: 
+                    input#name.form-control(
+                      type="text" placeholder='Name Of the Supplier' name='name' 
+                      required='true' value=(return_item?return_item.name:''))
+                  .row
+                    .col-md-6
+                      .form-group
+                        label(for="email") Email Address: 
+                        input#email.form-control(
+                          type="email" placeholder='Supplier\'s Email' name='email' 
+                          required='true' value=(return_item?return_item.email:''))
+                    .col-md-6
+                      .form-group
+                        label(for="phone") Phone Number: 
+                        input#phon.form-control(
+                          type="tel" placeholder='Supplier\'s Phone' name='phone' 
+                          required='true' value=(return_item?return_item.phone:''))
+                      
+                  .form-group
+                    label(for='address') Address:
+                    textarea#address.form-control(
+                      name="address", rows='3' placeholder='Enter Supplier Address'
+                      value=(return_item?return_item.address:''))
+                      
+                .modal-footer
+                  button.btn.btn-success(type='submit') Save 
+                  button.btn.btn-danger(type='button' data-dismiss='modal') Close
+  
+  .container
+    .row
+      .col-sm-3
+      .col-sm-6
+        if suppliers.length
+          each supplier in suppliers
+            ul.list-group
+              li.list-group-item
+                .row
+                  .col-sm-8
+                    h4 #{supplier.name}
+                  .col-sm-4
+                    span.btn.btn-primary.glyphicon.glyphicon-pencil(
+                      data-toggle='modal' data-target='#edit_' + supplier._id)
+                    span.btn.btn-success.glyphicon.glyphicon-eye-open(
+                      data-toggle='modal' data-target='#view_' + supplier._id)
+                    - let ha = false
+                    - let id = supplier._id.toString()
+                    each item in items
+                      if item.supplier.toString() === id
+                        - ha = true
+                    if !ha
+                      span.btn.btn-danger.glyphicon.glyphicon-remove(
+                        data-toggle='modal' data-target='#delete_' + supplier._id)
+                
+                // editing
+                .modal.fade(id='edit_'+ supplier._id
+                  tab-index='-1' role='dialog' aria-labelby='EditBranch' 
+                  aria-hidden='true')
+                  
+                  .modal-dialog(role='document')
+                    .modal-content
+                      form(action=supplier.url, method="post")
+                        .modal-header
+                          h4.modal-title Edit Supplier
+                          button.close(type='button' data-dismiss='modal' aria-label='Close')
+                            span(aria-hidden='true') &times;
+                        .modal-body
+                          .form-group
+                            label(for="name") Supplier Name: 
+                            input#name.form-control(
+                              type="text" placeholder='Name Of the Bracnh' name='name' 
+                              required='true' value=supplier.name)
+                          .row
+                            .col-md-6
+                              .form-group
+                                label(for="email") Email Address: 
+                                input#email.form-control(
+                                  type="email" placeholder='Supplier\'s Email' name='email' 
+                                  required='true' value=supplier.email)
+                            .col-md-6
+                              .form-group
+                                label(for="phone") Phone Number: 
+                                input#phon.form-control(
+                                  type="tel" placeholder='Supplier\'s Phone' name='phone' 
+                                  required='true' value=supplier.phone)
+                              
+                          .form-group
+                            label(for='address') Address:
+                            textarea#address.form-control(
+                              name="address", rows='3' 
+                              placeholder='Enter Supplier Address') #{supplier.address}
+
+                        .modal-footer
+                          button.btn.btn-success(type='submit') Save 
+                          button.btn.btn-danger(type='button' data-dismiss='modal') Close
+                
+                // viewing
+                .modal.fade(id='view_' + supplier._id
+                  tab-index='-1' role='dialog' aria-labelby='ViewBranchDetails' 
+                  aria-hidden='true')
+                  .modal-dialog(role='document')
+                    .modal-content
+                      .modal-header
+                        h4.modal-title Supplier Details
+                        button.close(type='button' data-dismiss='modal' aria-label='Close')
+                          span(aria-hidden='true') &times;
+                      .modal-body
+                        .row
+                          .col-sm-3.text-right
+                            p #[strong Name: ]
+                          .col-sm-9
+                            p #{supplier.name}
+                        .row
+                          .col-sm-3.text-right
+                            p #[strong Email: ]
+                          .col-sm-9
+                            p #{supplier.email}
+                        .row
+                          .col-sm-3.text-right
+                            p #[strong Phone: ]
+                          .col-sm-9
+                            p #{supplier.phone}
+                        .row
+                          .col-sm-3.text-right
+                            p #[strong Address: ]
+                          .col-sm-9
+                            p #{supplier.address}
+                        .row
+                          .col-sm-3.text-right
+                            p #[strong Entered On: ]
+                          .col-sm-9
+                            p #{supplier.entry_date_formated}
+                            
+                      .modal-footer
+                        button.btn.btn-secondary(type='button' data-dismiss='modal') Close
+                
+                // deleting
+                  a specific supplier from the system
+                  This is not allow if the supplier is attached to other items.
+                .modal.fade(id='delete_' + supplier._id
+                  tab-index='-1' role='dialog' aria-labelby='AddNewBranch' 
+                  aria-hidden='true')
+                  
+                  .modal-dialog(role='document')
+                    .modal-content
+                      form(action=supplier.url+'/delete', method="post")
+                        .modal-header
+                          h4.modal-title Delete Supplier: #{supplier.name}
+                          button.close(type='button' data-dismiss='modal' aria-label='Close')
+                            span(aria-hidden='true') &times;
+                        .modal-body
+                          .form-group
+                            p #[strong Located: ] #{supplier.address}
+                            p #[strong Are you sure you wnt to delete this Supplier?] 
+                            input#supplierid.form-control(
+                              type='hidden' name='supplierid' required='true'
+                              value=supplier._id)
+                        .modal-footer
+                          button.btn.btn-danger(type='submit') Delete 
+                          button.btn.btn-secondary(type='button' data-dismiss='modal') Cancel
+            
+        else
+          h4
+            i There are no Suppliers in the System. Please, add some Suppliers
+      .col-sm-3

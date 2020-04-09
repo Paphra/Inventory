@@ -1,0 +1,123 @@
+extends ../layout
+
+block content
+
+  h1 #{title}
+  
+  .container
+    .row
+      .col-sm-8
+        blockquote
+          p This shows the list of all the Item positions
+      
+      .col-sm-4
+        button.btn.btn-success.btn-block(
+          data-toggle='modal' data-target='#add') New Position
+
+      .col-sm-12
+        #add.modal.fade(
+          tab-index='-1' role='dialog' aria-labelby='AddNewPosition' 
+          aria-hidden='true')
+          
+          .modal-dialog(role='document')
+            .modal-content
+              - let url = (return_item?return_item.url:'')
+              form(action=(url?url:"/positions"), method="post")
+                .modal-header
+                  h4.modal-title #{return_item?'Update':'Add New'} Position
+                  button.close(type='button' data-dismiss='modal' aria-label='Close')
+                    span(aria-hidden='true') &times;
+                .modal-body
+                  .errors
+                    if return_item
+                      if return_item.errors
+                        ul
+                          each err in return_item.errors
+                            li= err.msg
+
+                  .form-group
+                    label(for="name") Position Name: 
+                    input#name.form-control(
+                      type="text" placeholder='Name Of Position' name='name' required='true')
+                  .form-group
+                    label(for='description') Description:
+                    textarea#description.form-control(
+                      name="description", rows='3' placeholder='Enter Position Description')
+                .modal-footer
+                  button.btn.btn-success(type='submit') Save 
+                  button.btn.btn-danger(type='button' data-dismiss='modal') Close
+  
+  .container
+    .row
+      .col-md-2
+      .col-md-8
+        if positions.length
+          ul.list-group
+          each pos in positions
+            li.list-group-item
+              .row
+                .col-sm-9
+                  h4 #[strong #{pos.name}]
+                  p(style='padding-left:10px') #{pos.description} 
+                .col-sm-3
+                  span.btn.btn-primary.glyphicon.glyphicon-pencil(
+                    data-target='#edit_' + pos._id, data-toggle='modal' role='button')
+                  - let hasUW = false
+                  each worker in workers
+                    if worker.position.toString() === pos._id.toString()
+                      - hasUW = true
+                  if !hasUW
+                    span.btn.btn-danger.glyphicon.glyphicon-remove(
+                      data-target='#delete_' + pos._id data-toggle='modal' role='button')
+                  
+                  // editing
+                  .modal.fade(id='edit_' + pos._id
+                    tab-index='-1' role='dialog' aria-labelby='UpdatePosition' 
+                    aria-hidden='true')        
+                    .modal-dialog(role='document')
+                      .modal-content
+                        form(action=pos.url, method="post")
+                          .modal-header
+                            h4.modal-title Edit Position
+                            button.close(type='button' data-dismiss='modal' aria-label='Close')
+                              span(aria-hidden='true') &times;
+                          .modal-body
+                            .form-group
+                              label(for="name") Position Name: 
+                              input#name.form-control(
+                                type'text' placeholder='Name Of Position' name='name' 
+                                required='true' value=pos.name)
+                            .form-group
+                              label(for='description') Description:
+                              textarea#description.form-control(
+                                name="description", rows='3' 
+                                placeholder='Enter Position Description') #{pos.description}
+                          .modal-footer
+                            button.btn.btn-success(type='submit') Save 
+                            button.btn.btn-danger(type='button' data-dismiss='modal') Close
+
+                  // deleting
+                  .modal.fade(id='delete_' + pos._id
+                    tab-index='-1' role='dialog' aria-labelby='AddNewCategory' 
+                    aria-hidden='true')
+                    .modal-dialog(role='document')
+                      .modal-content
+                        form(action=pos.url + '/delete', method="post")
+                          .modal-header
+                            h4.modal-title Delete Position: #{pos.name}
+                            button.close(type='button' data-dismiss='modal' aria-label='Close')
+                              span(aria-hidden='true') &times;
+                          .modal-body
+                            p #{pos.description}
+                            label(for="role") Are You Sure you want to delete this Position?
+                            input#roleid(
+                              type='hidden' name='positionid' value=pos._id requied='true') 
+                          .modal-footer
+                            button.btn.btn-danger(type='submit') Delete
+                            button.btn.btn-seconday(type='button' data-dismiss='modal') Close 
+
+        else
+          h4
+            i No positions Found, Please add some positions!
+      .col-md-2
+      

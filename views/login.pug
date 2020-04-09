@@ -1,0 +1,33 @@
+extends layout
+
+block navigation
+
+block content 
+  .containear
+    .row
+      .col-md-4
+      .col-md-4
+        .logo
+          img(src='/images/logo.png')
+          h3.signin-header Login
+        form.forma-signin(action='/login' method='post')
+          .form-group
+            input#username.form-control(
+              type="text" placeholder='Username' 
+              name='username' required='true' 
+              autofocus='true')
+            input#password.form-control(
+              type="password" placeholder='Password' 
+              name='password' required='true')
+          input#login.btn.btn-primary.btn-block(
+            type="submit" value='Login')
+        .errors
+          if errors
+            ul
+              each err in errors
+                li= err.msg
+        p.btn.btn-default.btn-block.text-center For A Pasword Reset, Contact the Admin
+      
+      .col-md-4
+        
+block footer

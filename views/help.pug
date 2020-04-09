@@ -1,0 +1,50 @@
+extends layout
+
+block content
+  h1 #{title}
+
+  blockquote
+    p This is the source of all the help information about the System
+
+  .row
+    .col-sm-6
+      h3 Home
+      ul.list-group
+        li.list-group-item
+          p.jumbotron The home page shows the overall statistics of all the entries
+            |  of stock in the system.
+    .col-sm-6
+      h3 Stock
+      ul.list-group
+        li.list-group-item
+          p.jumboron This lists all the stock items in the system and provides ways
+            |   sort and organise the data. It also provides ways of exprting the data
+            |   in different forms including MS Excel Spreadsheets among others.
+          p.quote It also gives the user the ability to search for stock items.
+  .row
+    .col-sm-6
+      h3 Stock Flows
+      ul.list-group
+        li.list-group-item
+          p.jumbotron All the stockk instances created by the users depending on the branch
+            |  of the current user are displayed here and this page provides for updates and
+            |  creation of new stock flow instances.
+          p.quote It should be noted that all the items on this page can also be exported 
+            |  in different formats as the stock items.
+    
+    .col-sm-6
+      h3 Operations
+      ul.list-group
+        li.list-group-item
+          p About the Operations
+  .row
+    .col-sm-6
+      h3 Settings
+      ul.list-group
+        li.list-group-item
+          p About the Settings
+    .col-sm-6
+      h3 Login
+      ul.list-group
+        li.list-group-item
+          p About the Logins

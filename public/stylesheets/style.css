@@ -1,0 +1,46 @@
+body {
+  padding-top: 60px;
+}
+
+a {
+  color: #00B7FF;
+}
+
+.footer{
+  background-color: #555555;
+  padding-bottom: 20px;
+  padding-top: 60px;
+  color: white;
+  bottom: 0;
+}
+
+.empty{
+  height: 30rem;
+  border: 2px solid black;
+  border-radius: 5px;
+
+}
+
+.login{
+  padding: 5rem 30%;
+}
+.logo{
+  text-align: center;
+  align-items: center;
+  align-content: center;
+  align-self: center;
+}
+
+.errors{
+  color: red;
+  padding: 10px;
+  text-align: right;
+}
+
+.errors ul li {
+  list-style-type: none;
+}
+
+.decimal-list{
+  list-style-type: decimal-leading-zero;
+}

@@ -1,0 +1,26 @@
+extends ../layout
+
+block content
+  h1 #{title}
+
+  blockquote
+    p This shows all the settings in the System.
+
+  .container
+    .row
+      .col-sm-6
+        h4 Stock related Settings
+        ul.list-group
+          li.list-group-item
+            a(href="/categories") Stock Categories
+          li.list-group-item
+            a(href="/brands") Stock Brands
+      .col-sm-6
+        h4 Eployees Related Settings
+        ul.list-group
+          li.list-group-item
+            a(href="/roles") User Roles
+          li.list-group-item
+            a(href="/categories") Worker Positions
+            
+  p #[strong Select what you want to View/Edit]
