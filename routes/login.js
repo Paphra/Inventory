@@ -24,6 +24,7 @@ module.exports = (app = express()) => {
       .isLength({ min: 5 }),
     check('*').escape(),
     (req, res, next) => {
+      console.log("hello");
       var errors = validationResult(req);
       if (!errors.isEmpty()) {
         res.render(
