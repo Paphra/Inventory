@@ -12,7 +12,7 @@ var secret = Math.random() + '' + Math.random() + '' + Math.random();
 var upload = multer();
 
 /* Database connection [Mongoose] */
-var dev_db_url = "mongodb+srv://paphra:admin1@inventory@developmentcluster-4codo.mongodb.net/inventory?retryWrites=true&w=majority";
+var dev_db_url = "mongodb+srv://paphra:admin1@inventory@developmentcluster-4codo.mongodb.net/inventory?retryWrites=true";
 var mongoDB = process.env.MONGODB_URI || dev_db_url;
 
 mongoose.connect(mongoDB, {
