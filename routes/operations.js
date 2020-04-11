@@ -93,6 +93,11 @@ const load_workers =(req, res, next, worker=null)=>{
     }
   }, (err, results) => {
     if (err) return next(err);
+    for (let index = 0; index < results.workers.length; index++) {
+      if (results.workers[index].user){
+        results.workers[index].password = sha1(results.workers[index].password);
+      }
+    }
     res.render(
       'operations/workers',
       {
@@ -294,11 +299,7 @@ module.exports = (app=express())=>{
           _id: req.params.id
         });
         if (worker.user) {
-          if (sha1(req.body.password) !== req.body.confirm_password) {
-            worker.password = sha1(req.body.password);
-          }else{
-            worker.password = req.body.password;
-          }
+          worker.password = sha1(req.body.password);
           worker.username = req.body.username;
           worker.role = req.body.role;
         } else {
