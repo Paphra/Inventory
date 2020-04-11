@@ -249,6 +249,10 @@ module.exports = (app=express())=>{
                 worker.username = req.body.username;
                 worker.password = req.body.password ? sha1(req.body.password) : '';
                 worker.role = req.body.role;
+              }else{
+                worker.username = '';
+                worker.password = '';
+                worker.role = null;
               }
               // save the worker
               worker.save((err) => {
@@ -305,7 +309,7 @@ module.exports = (app=express())=>{
         } else {
           worker.password = '';
           worker.username = '';
-          worker.role = '';
+          worker.role = null;
         }
         Worker.findByIdAndUpdate(
           req.params.id,
