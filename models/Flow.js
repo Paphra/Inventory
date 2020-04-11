@@ -2,7 +2,7 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var moment = require('moment');
 
-var StockFlowSchema = new Schema({
+var FlowSchema = new Schema({
   item: {type: Schema.Types.ObjectId, ref: 'Stock', required: true},
   quantity: { type: Number, default: 0 },
   action: {
@@ -18,19 +18,19 @@ var StockFlowSchema = new Schema({
 });
 
 // virtual for url
-StockFlowSchema
+FlowSchema
   .virtual('url')
   .get(function(){
     return '/flows/' + this._id;
   });
 
 // virtual for dentry_date_formated
-StockFlowSchema
+FlowSchema
   .virtual('entry_date_formated')
   .get(function(){
     return moment(this.entry_date).format('MMM Do, YYYY');
   });
 
 // export the model
-module.exports = mongoose.model('StockFlow', StockFlowSchema);
+module.exports = mongoose.model('Flow', FlowSchema);
 

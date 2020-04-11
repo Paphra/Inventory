@@ -150,7 +150,7 @@ module.exports = (app = express())=>{
    */
   // create a new Category
   app.post('/categories', checkuser, [
-    body('name', 'Name Field Must not be Empty.').trim().isLength({min: 3}),
+    body('name', 'Name Field Must not be Empty.').trim().isLength({min: 1}),
     check('*').escape(),
     (req, res, next)=>{
       let errors = validationResult(req);
@@ -172,7 +172,7 @@ module.exports = (app = express())=>{
 
   // update a category
   app.post('/categories/:id', checkuser, [
-    body('name', 'Name Field Must not be Empty.').trim().isLength({ min: 3 }),
+    body('name', 'Name Field Must not be Empty.').trim().isLength({ min: 1 }),
     check('*').escape(),
     (req, res, next)=>{
       let errors = validationResult(req);
@@ -240,7 +240,7 @@ module.exports = (app = express())=>{
 
   // update a brand
   app.post('/brands/:id', checkuser, [
-    body('name', 'Name Field Must not be Empty.').trim().isLength({ min: 3 }),
+    body('name', 'Name Field Must not be Empty.').trim().isLength({ min: 1 }),
     check('*').escape(),
     (req, res, next) => {
       let errors = validationResult(req);
@@ -286,7 +286,7 @@ module.exports = (app = express())=>{
    */
   // create a new role
   app.post('/roles', checkuser, [
-    body('name', 'Name Field Must not be Empty.').trim().isLength({ min: 3 }),
+    body('name', 'Name Field Must not be Empty.').trim().isLength({ min: 1 }),
     check('*').escape(),
     (req, res, next) => {
       let errors = validationResult(req);
@@ -308,7 +308,7 @@ module.exports = (app = express())=>{
 
   // update a role
   app.post('/roles/:id', checkuser, [
-    body('name', 'Name Field Must not be Empty.').trim().isLength({ min: 3 }),
+    body('name', 'Name Field Must not be Empty.').trim().isLength({ min: 1 }),
     check('*').escape(),
     (req, res, next) => {
       let errors = validationResult(req);
@@ -353,7 +353,7 @@ module.exports = (app = express())=>{
    */
   // create a new position
   app.post('/positions', checkuser, [
-    body('name', 'Name Field Must not be Empty.').trim().isLength({ min: 3 }),
+    body('name', 'Name Field Must not be Empty.').trim().isLength({ min: 1 }),
     check('*').escape(),
     (req, res, next) => {
       let errors = validationResult(req);
@@ -374,7 +374,7 @@ module.exports = (app = express())=>{
 
   // update a position
   app.post('/positions/:id', checkuser, [
-    body('name', 'Name Field Must not be Empty.').trim().isLength({ min: 3 }),
+    body('name', 'Name Field Must not be Empty.').trim().isLength({ min: 1 }),
     check('*').escape(),
     (req, res, next) => {
       let errors = validationResult(req);

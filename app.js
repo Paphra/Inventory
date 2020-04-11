@@ -12,7 +12,9 @@ var secret = Math.random() + '' + Math.random() + '' + Math.random();
 var upload = multer();
 
 /* Database connection [Mongoose] */
-var mongoDB = 'mongodb://localhost:27017/inventory?retryWrites=true?w=majority';
+var dev_db_url = "mongodb+srv://paphra:admin1@inventory@developmentcluster-4codo.mongodb.net/inventory?retryWrites=true";
+var mongoDB = process.env.MONGODB_URI || dev_db_url;
+
 mongoose.connect(mongoDB, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -29,7 +31,7 @@ app.set('view engine', 'pug');
 
 app.use(logger('dev'));
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({ extended: true }));
 app.use(upload.array());
 app.use(cookieParser());
 app.use(session({

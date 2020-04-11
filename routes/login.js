@@ -19,9 +19,9 @@ module.exports = (app = express()) => {
   // post login
   app.post('/login', [
     body('username', 'Username Must not Be Empty!').trim()
-      .isLength({ min: 5 }),
+      .isLength({ min: 1 }),
     body('password', 'Password Must not Be Empty!').trim()
-      .isLength({ min: 5 }),
+      .isLength({ min: 1 }),
     check('*').escape(),
     (req, res, next) => {
       var errors = validationResult(req);
@@ -38,9 +38,15 @@ module.exports = (app = express()) => {
         let password = sha1(req.body.password);
 
         Worker.findOne({
-          $or: [
-            { 'username': username, 'password': password },
-            { 'email': username, 'password': password }
+          $and: [
+            {$or: [
+                { 'username': username, 'password': password },
+                { 'email': username, 'password': password }
+            ]},
+            {$or: [
+              {'status': 'Active'},
+              {'status': null}
+            ]}
           ]
         }).populate('position')
           .populate('branch')

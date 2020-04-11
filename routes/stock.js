@@ -73,14 +73,14 @@ module.exports = (app = express())=>{
   
   // creating an item
   app.post('/stock', checkuser, [
-    body('name', 'Item Name MUST not be empty').trim().isLength({ min: 3 }),
-    body('brand', 'Item Brand MUST not be empty').trim().isLength({ min: 2 }),
-    body('color', 'Item Color MUST not be empty').trim().isLength({ min: 3 }),
+    body('name', 'Item Name MUST not be empty').trim().isLength({ min: 1 }),
+    body('brand', 'Item Brand MUST not be empty').trim().isLength({ min: 1 }),
+    body('color', 'Item Color MUST not be empty').trim().isLength({ min: 1 }),
     body('quantity', 'Item Qunatity MUST not be empty').trim().isLength({ min: 1 }),
-    body('category', 'Item Category MUST not be empty').trim().isLength({ min: 3 }),
-    body('status', 'Item Status MUST not be empty').trim().isLength({ min: 3 }),
+    body('category', 'Item Category MUST not be empty').trim().isLength({ min: 1 }),
+    body('status', 'Item Status MUST not be empty').trim().isLength({ min: 1 }),
     body('unit_price', 'Item Unit Price MUST not be empty').trim().isLength({ min: 1 }),
-    body('supplier', 'Item Supplier MUST not be empty').trim().isLength({ min: 3 }),
+    body('supplier', 'Item Supplier MUST not be empty').trim().isLength({ min: 1 }),
     body('description', 'Item Description MUST not be empty').trim().isLength({ min: 1 }),
     
     check('*').escape(),
@@ -120,14 +120,14 @@ module.exports = (app = express())=>{
 
   // updating an item
   app.post('/stock/:id', checkuser, [
-    body('name', 'Item Name MUST not be empty').trim().isLength({ min: 3 }),
-    body('brand', 'Item Brand MUST not be empty').trim().isLength({ min: 2 }),
-    body('color', 'Item Color MUST not be empty').trim().isLength({ min: 3 }),
+    body('name', 'Item Name MUST not be empty').trim().isLength({ min: 1 }),
+    body('brand', 'Item Brand MUST not be empty').trim().isLength({ min: 1 }),
+    body('color', 'Item Color MUST not be empty').trim().isLength({ min: 1 }),
     body('quantity', 'Item Qunatity MUST not be empty').trim().isLength({ min: 1 }),
-    body('category', 'Item Category MUST not be empty').trim().isLength({ min: 3 }),
-    body('status', 'Item Status MUST not be empty').trim().isLength({ min: 3 }),
+    body('category', 'Item Category MUST not be empty').trim().isLength({ min: 1 }),
+    body('status', 'Item Status MUST not be empty').trim().isLength({ min: 1 }),
     body('unit_price', 'Item Unit Price MUST not be empty').trim().isLength({ min: 1 }),
-    body('supplier', 'Item Supplier MUST not be empty').trim().isLength({ min: 3 }),
+    body('supplier', 'Item Supplier MUST not be empty').trim().isLength({ min: 1 }),
     body('description', 'Item Description MUST not be empty').trim().isLength({ min: 1 }),
 
     check('*').escape(),
