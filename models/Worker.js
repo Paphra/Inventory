@@ -10,6 +10,7 @@ var WorkerSchema = new Schema({
   phone: {type: String, min: 5, required: true},
   branch: {type: Schema.Types.ObjectId, ref: 'Branch', required: true },
   position: { type: Schema.Types.ObjectId, ref: 'Position', required: true },
+  status: { type: String, enum: ['Active', 'Inactive'], default: 'Active', required: true },
   user: { type: Boolean, default: false, required: true },
   role: { type: Schema.Types.ObjectId, ref: 'Role' },
   username: {type: String, min: 5, max: 15},

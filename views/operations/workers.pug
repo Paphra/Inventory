@@ -86,6 +86,18 @@ block content
                               ) #{pos.name}
                           else
                             option(value="") No Positions
+                    
+                  .form-group
+                    label(for="status") Employee Status
+                    select#status.form-control(
+                      type="select" placeholder='Worker\'s Status At Work'
+                      name='status' required='true')
+                      option(value="") -- Status --
+                      option(value='Active' 
+                        selected=(return_item?return_item.status === 'Active':false)) Active
+                      option(value='Inactive' 
+                        selected=(return_item?return_item.status === 'Inactive':false)) Inactive
+
                   hr
                   label(for="user") Check if this Worker is a User
                   .form-group
@@ -263,13 +275,25 @@ block content
                                   ) #{pos.name}
                               else
                                 option(value="") No Positions
+                      .form-group
+                        label(for="status") Employee Status
+                        select#status.form-control(
+                          type="select" placeholder='Worker\'s Status At Work'
+                          name='status' required='true')
+                          option(value="") -- Status --
+                          option(value='Active' 
+                            selected=(worker.status === 'Active')) Active
+                          option(value='Inactive' 
+                            selected=(worker.status === 'Inactive')) Inactive
+                             
                       hr
                       label Check if this Worker is a User
                       .form-group
                         input#user_u( onChange="userCheckU(this.value)" style='margin-left:20px'
                           type="checkbox", name="user" checked=worker.user)
                         label(for='user_u' style='padding-left:10px')  User ?
-                        input#user_val_u(type='number' name='user_val' value=0 hidden='true')
+                        input#user_val_u(type='number' name='user_val'
+                          value=(worker.user?1:0) hidden='true')
 
                       .row
                         .col-md-6
@@ -351,6 +375,11 @@ block content
                         p #[strong Branch: ]
                       .col-sm-9
                         p #{worker.branch.name}
+                    .row
+                      .col-sm-3.text-right
+                        p #[strong Staus:]
+                      .col-sm-9
+                        p #{worker.status}
                     
                     if worker.user
                       .row

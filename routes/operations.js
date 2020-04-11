@@ -237,7 +237,8 @@ module.exports = (app=express())=>{
                 phone: req.body.phone,
                 branch: req.body.branch,
                 position: req.body.position,
-                user: isUser
+                user: isUser,
+                status: req.body.status
               });
               if (worker.user) {
                 worker.username = req.body.username;
@@ -288,12 +289,15 @@ module.exports = (app=express())=>{
           phone: req.body.phone,
           branch: req.body.branch,
           position: req.body.position,
+          status: req.body.status,
           user: isUser,
           _id: req.params.id
         });
         if (worker.user) {
-          if (found.password !== req.body.password) {
+          if (sha1(req.body.password) !== req.body.confirm_password) {
             worker.password = sha1(req.body.password);
+          }else{
+            worker.password = req.body.password;
           }
           worker.username = req.body.username;
           worker.role = req.body.role;

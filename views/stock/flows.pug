@@ -185,8 +185,9 @@ block content
             th #{flow.action}
             th #{flow.branch.name}
             td
-              span.btn.btn-primary.glyphicon.glyphicon-pencil(
-                data-target='#edit_' + flow._id data-toggle='modal')
+              if isAdmin || user._id.toString() === flow.entered_by._id.toString()
+                span.btn.btn-primary.glyphicon.glyphicon-pencil(
+                  data-target='#edit_' + flow._id data-toggle='modal')
               span.btn.btn-success.glyphicon.glyphicon-eye-open(
                 data-target='#view_' + flow._id data-toggle='modal')
               if isAdmin

@@ -24,6 +24,7 @@ const load =(req, res, next, flow=null)=>{
   }
   async.parallel({
     workers: callback=>{
+      branch_filter.status = 'Active';
       Worker.find(branch_filter)
         .populate('branch')
         .populate('position')

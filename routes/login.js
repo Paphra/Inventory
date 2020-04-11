@@ -38,9 +38,15 @@ module.exports = (app = express()) => {
         let password = sha1(req.body.password);
 
         Worker.findOne({
-          $or: [
-            { 'username': username, 'password': password },
-            { 'email': username, 'password': password }
+          $and: [
+            {$or: [
+                { 'username': username, 'password': password },
+                { 'email': username, 'password': password }
+            ]},
+            {$or: [
+              {'status': 'Active'},
+              {'status': null}
+            ]}
           ]
         }).populate('position')
           .populate('branch')
