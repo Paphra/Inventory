@@ -201,7 +201,7 @@ block content
               - let ha = false
               - let id = worker._id.toString()
               each flow in flows
-                if flow.handled_by.toString() === id
+                if flow.handled_by.toString() === id || flow.entered_by._id.toString() === id
                   - ha = true
               if worker._id.toString() === user._id.toString()
                 - ha = true

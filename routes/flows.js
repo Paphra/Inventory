@@ -2,6 +2,7 @@ var express = require('express');
 var async = require('async');
 var url = require('url');
 var {body, check, validationResult} = require('express-validator');
+var deepclone = require('lodash/cloneDeep')
 
 var Flow = require('../models/Flow');
 var Stock = require('../models/Stock');
@@ -15,17 +16,18 @@ var Supplier = require('../models/Supplier');
 const load =(req, res, next, flow=null)=>{
   let user = req.session.user;
   let branch_filter = {};
-  if (user.role.name.toLowerCase().includes('admin') ||
+  if (!(user.role.name.toLowerCase().includes('admin') ||
     user.username.toLowerCase().includes('admin') ||
-    user.position.name.toLowerCase().includes('admin')) {
+    user.position.name.toLowerCase().includes('admin'))) {
     branch_filter = {
       'branch': user.branch._id
     }
   }
   async.parallel({
     workers: callback=>{
-      branch_filter.status = 'Active';
-      Worker.find(branch_filter)
+      my_filter = deepclone(branch_filter);
+      my_filter.status = 'Active';
+      Worker.find(my_filter)
         .populate('branch')
         .populate('position')
         .populate('role')
