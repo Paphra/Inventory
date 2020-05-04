@@ -2,10 +2,21 @@ extends layout
 
 block content
 
-  blockquote
-    p This shows all the statistics of the System
-
   .container
-    h3.text-center Stock Stats
+    .row
+      .col-md-4
+        h4
+          i Inventory statistics
+      .col-md-8
+        include filter
+    hr
     
+    input#data(type="hidden" value=(data?data:{}))
     canvas#lineChart
+
+block scripts
+  script.
+    var ctxL = document.getElementById("lineChart").getContext('2d');
+    var data_el = document.getElementById('data')
+    var data = JSON.parse(data_el.value);
+    var myLineChart = new Chart(ctxL, data);

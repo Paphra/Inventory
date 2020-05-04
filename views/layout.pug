@@ -4,188 +4,181 @@ html(lang='en')
     title= title
     meta(charset='utf-8')
     meta(name='viewport', content='width=device-width, initial-scale=1')
-    link(rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
+    //link(rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
       integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous")
-    link(rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" 
-      integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous")
+    link(rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous")
     link(rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.16.0/dist/bootstrap-table.min.css")
     
     link(rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css")
     link(rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap")
     //link(href="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.15.0/css/mdb.min.css" rel="stylesheet")
 
-    link(rel='stylesheet', href='/stylesheets/style.css')
+    
+    script(defer src="https://use.fontawesome.com/releases/v5.0.13/js/solid.js"
+      integrity="sha384-tzzSw1/Vo+0N5UhStP3bvwWPq+uvzCMfrN1fEFe+xBmv1C/AtVX5K0uZtmcHitFZ"
+      crossorigin="anonymous")
+    script(defer src="https://use.fontawesome.com/releases/v5.0.13/js/fontawesome.js" 
+      integrity="sha384-6OIrr52G08NpOFSZdxxz1xdNSndlD4vdcf/q2myIUVO0VsqaGHJsB0RaBE01VTOY" 
+      crossorigin="anonymous")
+
+    link(rel='stylesheet', href='/css/style.css')
     
   body
-    - let isAdmin = false
-    if user
-      if user.role.name.toLowerCase().includes('admin') || user.position.name.toLowerCase().includes('admin') || user.username.toLowerCase().includes('admin')
-        - isAdmin = true
-    
     block navigation
-      nav.navbar.navbar-default.navbar-fixed-top
+      nav.navbar.navbar-light.bg-success.navbar-expand-lg.fixed-top.shadow
         .container
-          .navbar-header
-            button.navbar-toggle.collapsed(type="button" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar")
-              span.sr-only Toggle navigation
-              span.icon-bar
-              span.icon-bar
-              span.icon-bar
+          a.navbar-brand(href="/")
+            img.brand(src='/img/logo.png' width='25rem' alt='Logo')
+          button.navbar-toggler.navbar-toggler-right(type="button" 
+            data-toggle="collapse" data-target="#navbarTogglerDemo02" 
+            aria-controls="navbarTogglerDemo02" aria-expanded="false" 
+            aria-label="Toggle navigation")
+            span.navbar-toggler-icon
           
-            a.navbar-brand(href="/")
-              img.brand(src='/images/logo.png' width='25rem' alt='Logo')
-        
-          #navbar.navbar-collapse.collapse(aria-expanded="false" style="height: 1px;")
-            ul.nav.navbar-nav
-              li(class=(nav===1?'active':''))
-                a(href="/") Home 
-                  span.glyphicon.glyphicon-home
-              li(class=(nav===2?'active':''))
-                a(href="/flows") Stock Flow 
-                  span.glyphicon.glyphicon-check
-              li(class=(nav===3?'active':''))
-                a(href="/stock") Stock Items 
-                  span.glyphicon.glyphicon-stats 
-              li(class=(nav===4?'active':''))
-                a(href='/help') Help 
-                  span.glyphicon.glyphicon-flash
+          #navbarTogglerDemo02.collapse.navbar-collapse
+            ul.navbar-nav.mr-auto
+              li.nav-item(class=(nav===1?'active':''))
+                a.nav-link(href="/") Home 
+                  i.fas.fa-home
+              li.nav-item(class=(nav===2?'active':''))
+                a.nav-link(href="/flows") Stock Flow 
+                  i.fas.fa-tasks
+              li.nav-item(class=(nav===3?'active':''))
+                a.nav-link(href="/stock") Stock Items 
+                  i.fas.fa-list
+              li.nav-item(class=(nav===4?'active':''))
+                a.nav-link(href='/help') Help 
+                  i.fas.fa-question
 
-            ul.nav.navbar-nav.navbar-right
-              if isAdmin
-                li.dropdown(class=(nav===5?'active':''))
-                  a.dropdown-toggle(
-                    href='#operations' data-toggle='dropdown' role='button' 
-                    aria-haspopup='true' aria-expanded='false') Operations 
-                    span.caret  
-                    span.glyphicon.glyphicon-cog
-                  ul.dropdown-menu
-                    li.dropdown-header Internal
-                    li(class=(nav===5&&navS===1?'active':''))
-                      a(href='/branches') 
-                        span.glyphicon.glyphicon-leaf  Branches
-                    li(class=(nav===5&&navS===2?'active':''))
-                      a(href="/workers") 
-                        span.glyphicon.glyphicon-user  Employees
-
-                    li.divider(role='seperator')
-                    li.dropdown-header External
-                    li(class=(nav===5&&navS===3?'active':''))
-                      a(href='/suppliers') 
-                        span.glyphicon.glyphicon-share  Supplier
-                li.dropdown(class=(nav===6?'active':''))
-                  a.dropdown-toggle(
-                    href="#settings" data-toggle="dropdown" role="button" 
+            ul.navbar-nav.navbar-right
+              if user.admin
+                li.nav-item.dropdown(class=(nav===5?'active':''))
+                  a.nav-link.dropdown-toggle(
+                    href='#' data-toggle='dropdown' role='button' 
+                    aria-haspopup='true' aria-expanded='false' id="operations") Operations 
+                    i.fas.fa-cog
+                  .dropdown-menu(aria-labeledby='operations')
+                    .dropdown-header Internal
+                    a.dropdown-item(href='/branches' class=(nav===5&&navS===1?'active':'')) 
+                      i.fas.fa-leaf 
+                      i  Branches
+                    a.dropdown-item(href="/workers" class=(nav===5&&navS===2?'active':'')) 
+                      i.fas.fa-user 
+                      i  Employees
+                    .dropdown-divider
+                    
+                    .dropdown-header External
+                    a.dropdown-item(href='/suppliers' class=(nav===5&&navS===3?'active':'')) 
+                      i.fas.fa-share 
+                      i  Supplier
+                
+                li.nav-item.dropdown(class=(nav===6?'active':''))
+                  a.nav-link.dropdown-toggle(
+                    href="#" id='settings' data-toggle="dropdown" role="button" 
                     aria-haspopup="true" aria-expanded="false") Settings 
-                    span.caret  
-                    span.glyphicon.glyphicon-wrench
-                  ul.dropdown-menu
-                    li.dropdown-header Stock Related
-                    li(class=(nav===6&&navS===1?'active':''))
-                      a(href="/categories") 
-                        span.glyphicon.glyphicon-folder-open  Categories
-                    li(class=(nav===6&&navS===2?'active':''))
-                      a(href="/brands") 
-                        span.glyphicon.glyphicon-qrcode  Brands
-                    li.divider(role="separator")
-                    li.dropdown-header Employee Related
-                    li(class=(nav===6&&navS===3?'active':''))
-                      a(href="/roles") 
-                        span.glyphicon.glyphicon-globe  Roles
-                    li(class=(nav===6&&navS===4?'active':''))
-                      a(href="/positions") 
-                        span.glyphicon.glyphicon-signal  Positions
+                    i.fas.fa-wrench
+                  .dropdown-menu(aria-labeledby='settings')
+                    .dropdown-header Stock Related
+                    a.dropdown-item(href="/categories" class=(nav===6&&navS===1?'active':'')) 
+                      i.fas.fa-folder-open
+                      i  Categories
+                    a.dropdown-item(href="/brands" class=(nav===6&&navS===2?'active':'')) 
+                      i.fas.fa-qrcode 
+                      i  Brands
 
-              li 
-                a(href="/logout") #{user.username} 
-                  span.glyphicon.glyphicon-log-out
+              li.nav-item
+                a.nav-link(href="/logout") #{user.username} 
+                  i.fas.fa-sign-out-alt
           
     .container
       
-      .row
-        .col-sm-2
-        .col-sm-8
-          if return_item || success || error || true
-            if return_item
-              .alert.alert-warning.alert-dismissible.fade.in
-                a.close(href='#top' data-dismiss='alert' aria-label='Close') &times;
-                strong Warning!
-                p There were errors in the Saving Operation.
-                p Please, click 
-                  a.btn.btn-danger(href='#top' data-toggle='modal' data-target='#add') HERE
-                  |  to see them.
-            else if error
-              .alert.alert-danger.alert-dismissible.fade.in
-                a.close(href='#top' data-dismiss='alert' aria-label='Close') &times;
-                strong Error!
-                p An Error has occured in the Previous Operation.
-                p Please, try again.
-            else if success
-              .alert.alert-success.alert-dismissible.fade.in
-                a.close(href='#top' data-dismiss='alert' aria-label='Close') &times;
-                strong Success
-                p The previous operation Complete Successfully
-              
-        .col-sm-2
-      .row
-        .col-sm-4.text-center
-          img.logo(src="/images/logo.png", width='50rem' alt="Logo")
-        .col-sm-8.text-right
-          h3 #{title}
-      block content
-  
+      .content
+        .row
+          .col-sm-2
+          .col-sm-8.shadow
+            if returned || success || error
+              if returned
+                .alert.alert-warning.alert-dismissible.fade.show
+                  a.close(href='#top' data-dismiss='alert' aria-label='Close') &times;
+                  strong Warning!
+                  p There were errors in the Saving Operation.
+                  p Please, click 
+                    a.btn.btn-danger(href='#top' data-toggle='modal' data-target='#add') HERE
+                    |  to see them.
+              else if error
+                .alert.alert-danger.alert-dismissible.fade.show
+                  a.close(href='#top' data-dismiss='alert' aria-label='Close') &times;
+                  strong Error!
+                  p An Error has occured in the Previous Operation.
+                  p Please, try again.
+              else if success
+                .alert.alert-success.alert-dismissible.fade.show
+                  a.close(href='#top' data-dismiss='alert' aria-label='Close') &times;
+                  strong Success
+                  p The previous operation Complete Successfully
+                
+          .col-sm-2
+
+        block content
+    
   block footer
-    hr
     footer.footer
       .container
-        .row
-          .col-sm-6
-            h4 Useful Internal Links
+        .row.text-white
+          .col-sm-8
+            h4.text-center Useful Internal Links
             hr
             .row
-              .col-sm-6
-                ul.list-group
-                  li.list-group-item(class=(nav===1?'active':''))
-                    a(href='/')
-                      span.glyphicon.glyphicon-home  Home
-                  li.list-group-item(class=(nav===2?'active':''))
-                    a(href='/flows')
-                      span.glyphicon.glyphicon-check  Stock Flow
+              .col-sm-3
+                ul.nav.nav-pills.flex-column
+                  li.nav-item(class=(nav===1?'active':''))
+                    a.nav-link(href='/')
+                      i.fas.fa-home
+                      i  Home
+                  li.nav-item(class=(nav===2?'active':''))
+                    a.nav-link(href='/flows')
+                      i.fas.fa-tasks
+                      i  Stock Flow
               
-              .col-sm-6
-                ul.list-group
-                  li.list-group-item(class=(nav===3?'active':''))
-                    a(href='/stock')
-                      span.glyphicon.glyphicon-stats  Stock Items
-                  if isAdmin
-                    li.list-group-item(class=(nav===5?'active':''))
-                      a(href='/operations')
-                        span.glyphicon.glyphicon-tasks  Operations
-              .col-sm-6
-                ul.list-group
-                  if isAdmin
-                    li.list-group-item(class=(nav===6?'active':''))
-                      a(href='/settings')
-                        span.glyphicon.glyphicon-wrench  Settngs
-                  li.list-group-item(class=(nav===4?'active':''))
-                    a(href='/help')
-                      span.glyphicon.glyphicon-flash  Help
-              .col-sm-6
-                li.list-group-item
-                  a(href='/logout')
-                    span.glyphicon.glyphicon-log-out  Logout
+              .col-sm-3
+                ul.nav.nav-pills.flex-column
+                  li.nav-item(class=(nav===3?'active':''))
+                    a.nav-link(href='/stock')
+                      i.fas.fa-list
+                      i  Stock Items
+                  if user.admin
+                    li.nav-item(class=(nav===5?'active':''))
+                      a.nav-link(href='/operations')
+                        i.fas.fa-cog
+                        i  Operations
+              .col-sm-3
+                ul.nav.nav-pills.flex-column
+                  if user.admin
+                    li.nav-item(class=(nav===6?'active':''))
+                      a.nav-link(href='/settings')
+                        i.fas.fa-wrench
+                        i  Settings
+                  li.nav-item(class=(nav===4?'active':''))
+                    a.nav-link(href='/help')
+                      i.fas.fa-question 
+                      i  Help
+              .col-sm-3
+                ul.nav.nav-pills.flex-column
+                  li.nav-item
+                    a.nav-link(href='/logout')
+                      i.fas.fa-sign-out-alt
+                      i  Logout
         
-          .col-sm-6.text-right
+          .col-sm-4.text-right
             a.btn.btn-primary(href='#top')
-              span.glyphicon.glyphicon-chevron-up
+              i.fas.fa-chevron-up
             hr
             p &copy; Copyright #{(new Date()).getFullYear()}
             p Inventory App 1.0
 
-    script(src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js")
-    script(src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" 
-      integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
-      crossorigin="anonymous")
-    script(src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js')
+    script(src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous")
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous")
+    script(src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous")
 
     script(src="https://unpkg.com/bootstrap-table@1.16.0/dist/bootstrap-table.min.js")
     script(src="https://unpkg.com/bootstrap-table@1.16.0/dist/extensions/export/bootstrap-table-export.min.js")
@@ -195,5 +188,6 @@ html(lang='en')
     script(src="https://unpkg.com/bootstrap-table@1.16.0/dist/extensions/print/bootstrap-table-print.min.js")
 
     script(type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.15.0/js/mdb.min.js")
-    script(src='/javascripts/custom.js')
+    script(src='/js/custom.js')
   
+    block scripts

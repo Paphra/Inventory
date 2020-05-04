@@ -15,30 +15,56 @@ var Supplier = require('../models/Supplier');
 
 const load =(req, res, next, flow=null)=>{
   let user = req.session.user;
-  let branch_filter = {};
-  if (!(user.role.name.toLowerCase().includes('admin') ||
-    user.username.toLowerCase().includes('admin') ||
-    user.position.name.toLowerCase().includes('admin'))) {
-    branch_filter = {
-      'branch': user.branch._id
+  let filter = {};
+  let {branch, from, to} = req.query
+  if(branch === undefined){
+    filter.branch = user.branch._id;
+  }else{
+    if(branch != 'all'){
+      filter.branch = branch;
     }
+  }
+
+  let date = new Date();   
+  if (from === undefined){
+    let l_month = (date.getMonth()).toString().padStart(2, '0');
+    let l_day = (date.getDate()).toString().padStart(2, '0');
+    from = date.getFullYear() + '-' + l_month + '-' + l_day;
+  }
+  if(to === undefined ){
+    let c_month = (date.getMonth()+1).toString().padStart(2, '0');
+    let c_day = (date.getDate()).toString().padStart(2, '0');
+    to = date.getFullYear() + '-' + c_month + '-' + c_day;
+  }
+  
+  filter.entry_date = {
+    $gte: new Date(new Date(from).setHours(00, 00, 00)),
+    $lt: new Date(new Date(to).setHours(23, 59, 59))
+  };
+
+  let b_filter = {};
+  let w_filter = deepclone(filter);
+  w_filter.status = 'Active';
+   
+  if (user.admin == false){
+      b_filter = {'name': user.branch.name};
+  }else{
+    delete w_filter.branch;
+    console.log(w_filter);
   }
   async.parallel({
     workers: callback=>{
-      my_filter = deepclone(branch_filter);
-      my_filter.status = 'Active';
-      Worker.find(my_filter)
+      Worker.find(w_filter)
         .populate('branch')
-        .populate('position')
-        .populate('role')
         .exec(callback);
     },
     branches: callback=>{
-      Branch.find({'name': user.branch.name})
+      Branch.find(b_filter)
         .exec(callback);
     },
     flows: callback => {
-      Flow.find(branch_filter)
+      Flow.find(filter)
+        .sort('-entry_date')
         .populate('item')
         .populate('branch')
         .populate('handled_by')
@@ -56,12 +82,21 @@ const load =(req, res, next, flow=null)=>{
     },
   }, (err, results) => {
     if (err) return next(err);
+    
+    let count = results.flows.length
+    if (from === undefined && count !== 0){
+      let date = results.flows[count-1].entry_date;
+      let l_month = (date.getMonth()+1).toString().padStart(2, '0');
+      let l_day = (date.getDate()).toString().padStart(2, '0');
+      from = date.getFullYear() + '-' + l_month + '-' + l_day;
+      console.log(from);
+    }
     res.render(
       'stock/flows',
       {
         title: 'Stock Flows | Inventory',
         flows: results.flows,
-        return_item: flow,
+        returned: flow,
         success: req.query.success,
         error: req.query.error,
         workers: results.workers,
@@ -71,6 +106,9 @@ const load =(req, res, next, flow=null)=>{
         brands: results.brands,
         items: results.items,
         user: req.session.user,
+        from: from,
+        to: to,
+        branch: branch,
         nav: 2
       }
     );

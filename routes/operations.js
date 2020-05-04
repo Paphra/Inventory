@@ -8,14 +8,13 @@ var url = require('url');
 var Branch = require('../models/Branch');
 var Worker = require('../models/Worker');
 var Supplier = require('../models/Supplier');
-var Role = require('../models/Role');
-var Position = require('../models/Position');
 var Flow = require('../models/Flow');
+var Stock = require('../models/Stock');
 
 const load_suppliers =(req, res, next, supplier=null)=>{
   async.parallel({
     items: callback => {
-      Flow.find({}, callback);
+      Stock.find({}, callback);
     },
     suppliers: callback => {
       Supplier.find({}, callback);
@@ -28,7 +27,7 @@ const load_suppliers =(req, res, next, supplier=null)=>{
         title: 'Stock Suppliers | Inventory',
         suppliers: results.suppliers,
         items: results.items,
-        return_item: supplier,
+        returned: supplier,
         success: req.query.success,
         error: req.query.error,
         user: req.session.user,
@@ -59,7 +58,7 @@ const load_branches =(req, res, next, branch=null)=>{
         branches: results.branches,
         workers: results.workers,
         flows: results.flows,
-        return_item: branch,
+        returned: branch,
         success: req.query.success,
         error: req.query.error,
         user: req.session.user,
@@ -72,14 +71,8 @@ const load_branches =(req, res, next, branch=null)=>{
 
 const load_workers =(req, res, next, worker=null)=>{
   async.parallel({
-    roles: callback => {
-      Role.find({}, callback);
-    },
     flows: callback => {
       Flow.find({}, callback);
-    },
-    positions: callback => {
-      Position.find({}, callback);
     },
     branches: callback => {
       Branch.find({}, callback);
@@ -87,8 +80,6 @@ const load_workers =(req, res, next, worker=null)=>{
     workers: callback => {
       Worker.find({})
         .populate('branch')
-        .populate('role')
-        .populate('position')
         .exec(callback);
     }
   }, (err, results) => {
@@ -104,10 +95,8 @@ const load_workers =(req, res, next, worker=null)=>{
         title: 'Workers | Inventory',
         workers: results.workers,
         branches: results.branches,
-        positions: results.positions,
-        roles: results.roles,
         flows: results.flows,
-        return_item: worker,
+        returned: worker,
         success: req.query.success,
         error: req.query.error,
         user: req.session.user,
@@ -231,10 +220,8 @@ module.exports = (app=express())=>{
               redirect(err, res, '/workers');
             }else{
               // no worker found
-              let isUser = false;
-              if (req.body.user_val == 1 || req.body.user_val === '1') {
-                isUser = true;
-              }
+              let isUser = parseInt(req.body.is_user, 0);
+
               let worker = new Worker({
                 first_name: req.body.first_name,
                 last_name: req.body.last_name,
@@ -248,11 +235,10 @@ module.exports = (app=express())=>{
               if (worker.user) {
                 worker.username = req.body.username;
                 worker.password = req.body.password ? sha1(req.body.password) : '';
-                worker.role = req.body.role;
+                worker.admin = parseInt(req.body.is_admin, 0);
               }else{
                 worker.username = '';
                 worker.password = '';
-                worker.role = null;
               }
               // save the worker
               worker.save((err) => {
@@ -287,10 +273,8 @@ module.exports = (app=express())=>{
         load_workers(req, res, next, req.body);
       }else{
         // no worker found
-        let isUser = false;
-        if (req.body.user_val == 1 || req.body.user_val === '1') {
-          isUser = true;
-        }
+        let isUser = parseInt(req.body.is_user, 0);
+        
         let worker = new Worker({
           first_name: req.body.first_name,
           last_name: req.body.last_name,
@@ -303,13 +287,18 @@ module.exports = (app=express())=>{
           _id: req.params.id
         });
         if (worker.user) {
-          worker.password = sha1(req.body.password);
+          let pass = req.body.password;
+          let old_sha = req.body.old_sha;
+
+          if(old_sha != pass){
+            worker.password = sha1(pass);
+          }
+          
           worker.username = req.body.username;
-          worker.role = req.body.role;
+          worker.admin = parseInt(req.body.is_admin, 0)
         } else {
           worker.password = '';
           worker.username = '';
-          worker.role = null;
         }
         Worker.findByIdAndUpdate(
           req.params.id,

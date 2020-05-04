@@ -6,12 +6,14 @@ block content
     
     .row
       .col-sm-8
-        blockquote
-          p This displays all the Stock Items in the store.
+        include ../filter
       .col-sm-4
         button.btn.btn-success.btn-block(
-          data-toggle='modal' data-target='#add') New Stock Item Flow
-        
+          data-toggle='modal' data-target='#add') New Flow
+        input#items(type='hidden' value=items)
+        input#workers(type='hidden' value=workers)
+        input#branches(type='hidden' value=branches)
+
       .col-sm-12
         #add.modal.fade(
           tab-index='-1' role='dialog' aria-labelby='AddNewFlow' 
@@ -19,28 +21,28 @@ block content
           
           .modal-dialog(role='document')
             .modal-content
-              - let url = (return_item?return_item.url:'')
+              - let url = (returned?returned.url:'')
               form(action=(url?url:'/flows'), method="post")
                 .modal-header
-                  h4.modal-title #{return_item?'Update': 'Add New'} Stock Item Flow
+                  h4.modal-title #{returned?'Update': 'Add New'} Stock Item Flow
                   button.close(type='button' data-dismiss='modal' aria-label='Close')
                     span(aria-hidden='true') &times;
                 .modal-body
                   .errors
-                      if return_item
-                        if return_item.errors
+                      if returned
+                        if returned.errors
                           ul
-                            each err in return_item.errors
+                            each err in returned.errors
                               li= err.msg
                   .form-group
                     label(for="item") Item
                     select#item.form-control(
                       placeholder='Select a An Item' name='item'
-                      required='true')
+                      required='true' onChange="setQuantity()")
                       option(value="") -- Item --
                       each item in items
                         option(value=item._id
-                          selected=(return_item?return_item.item.toString()===item._id.toString():false)
+                          selected=(returned?returned.item.toString()===item._id.toString():false)
                           ) #{item.name}
                       else
                         option(value="") No Items
@@ -51,11 +53,11 @@ block content
                         label(for="handled_by") Handled By
                         select#handled_by.form-control(
                           placeholder='Select a Worker' name='handled_by'
-                          required='true')
+                          required='true' onChange="setBranch()")
                           option(value="") -- Worker --
                           each worker in workers
                             option(value=worker._id
-                              selected=(return_item?return_item.handled_by.toString()===worker._id.toString():false)
+                              selected=(returned?returned.handled_by.toString()===worker._id.toString():false)
                               ) #{worker.name}
                           else
                             option(value="") No Workers
@@ -67,7 +69,7 @@ block content
                           option(value="") -- Branch --
                           each branch in branches
                             option(value=branch._id
-                              selected=(return_item?return_item.branch.toString()===branch._id.toString():false)
+                              selected=(returned?returned.branch.toString()===branch._id.toString():false)
                               ) #{branch.name}
                           else
                             option(value="") No Branches
@@ -82,7 +84,7 @@ block content
                         input#quantity.form-control(
                           type='number' placeholder='Quantity' min='0'
                           required='true' name='quantity'
-                          value=(return_item?return_item.quantity:''))
+                          value=(returned?returned.quantity:''))
                       .col-sm-6
                         label(for="action") Action/Procedure
                         select#action.form-control(
@@ -90,24 +92,24 @@ block content
                           required='true')
                           option(value="") -- Action --
                           option(value="Sold" 
-                            selected=(return_item?return_item.action==='Sold':false)) Sold
+                            selected=(returned?returned.action==='Sold':false)) Sold
                           option(value="Rented" 
-                            selected=(return_item?return_item.action==='Rented':false)) Rented
+                            selected=(returned?returned.action==='Rented':false)) Rented
                           option(value="Used" 
-                            selected=(return_item?return_item.action==='Used':false)) Used
+                            selected=(returned?returned.action==='Used':false)) Used
                           option(value="Purchased" 
-                            selected=(return_item?return_item.action==='Purchased':false)) Purchased
+                            selected=(returned?returned.action==='Purchased':false)) Purchased
                           option(value="Returned In" 
-                            selected=(return_item?return_item.action==='Returned In':false)) Returned In
+                            selected=(returned?returned.action==='Returned In':false)) Returned In
                           option(value="Returned Out" 
-                            selected=(return_item?return_item.action==='Returned Out':false)) Returned Out
+                            selected=(returned?returned.action==='Returned Out':false)) Returned Out
                   
                   .form-group
                     label(for="amount") Amount [If Any]
                     input#amount.form-control(
                       type='number' placeholder='Enter Amount'
                       requird='true' name='amount' 
-                      value=(return_item?return_item.amount:''))
+                      value=(returned?returned.amount:''))
 
                   .form-group
                     .row
@@ -118,299 +120,342 @@ block content
                           required='true')
                           option(value="") -- Quality --
                           option(value="Excellent"
-                            selected=(return_item?return_item.quality==='Excellent':false)) Excellent
+                            selected=(returned?returned.quality==='Excellent':false)) Excellent
                           option(value="Good"
-                            selected=(return_item?return_item.quality==='Good':false)) Good
+                            selected=(returned?returned.quality==='Good':false)) Good
                           option(value="Fair"
-                            selected=(return_item?return_item.quality==='Fair':false)) Fair
+                            selected=(returned?returned.quality==='Fair':false)) Fair
                           option(value="Poor"
-                            selected=(return_item?return_item.quality==='Poor':false)) Poor
+                            selected=(returned?returned.quality==='Poor':false)) Poor
                     
                       .col-sm-6
                         label(for="entry_date") Entry Date
                         input#entry_date.form-control(placeholder='Enter Entry Date'
                           type="date" name='entry_date' required=true 
-                          value=(return_item?return_item.entry_date:false))
+                          value=(returned?returned.entry_date:false))
                   
                   .form-group
                     label(for="details") Details
                     textarea#details.form-control(
                       name="details", rows="3" required='true' 
-                      placeholder='Enter the Details of the Stock Item') #{return_item?return_item.details:''}
+                      placeholder='Enter the Details of the Stock Item') #{returned?returned.details:''}
 
                 .modal-footer
                   button.btn.btn-success(type='submit') Save 
                   button.btn.btn-danger(type='button' data-dismiss='modal') Close
+    hr
   
-  table#table.table.table-compressed.table-bordered(
-    data-toggle="table"
-    data-search="true"
-    data-trim-on-search='false'
-    data-show-columns="true"
-    data-show-columns-search='true'
-    data-show-columns-toggle-all='true'
-    data-show-print='true'
-    data-show-export='true'
-    data-sort-class="table-active"
-    data-sortable="true"
-    data-pagination="true"
-    data-show-pagination-switch='true'
-    data-page-number="1"
-    data-show-toggle='true'
-    data-show-fullscreen='true'
-    data-page-list="[10, 25, 50, 100, 200, All]"
-    data-width='100%')
+  .bg-white.shadow
+    table#table.table.table-compressed.table-bordered(
+      data-toggle="table"
+      data-search="true"
+      data-trim-on-search='false'
+      data-show-columns="true"
+      data-show-columns-search='true'
+      data-show-columns-toggle-all='true'
+      data-show-print='true'
+      data-show-export='true'
+      data-sort-class="table-active"
+      data-sortable="true"
+      data-pagination="true"
+      data-show-pagination-switch='true'
+      data-page-number="1"
+      data-show-toggle='true'
+      data-show-fullscreen='true'
+      data-page-list="[10, 25, 50, 100, 200, All]"
+      data-width='100%')
 
-    thead
-      tr
-        th(data-field='id' data-sortable='true') Date
-        th(data-field='item' data-sortable='true') Item
-        th(data-field='handled_by') Handled By
-        th(data-field='qtty' data-sortable='true') Qtty
-        th(data-field='amount' data-sortable='true') Amount
-        th(data-field='details') Details
-        th(data-field='action')  Action
-        th(data-field='branch') Branch
-        th Actions
-    tbody
-      if flows.length
-        each flow in flows
-          tr
-            td #{flow.entry_date_formated}
-            td #{flow.item.name}
-            th #{flow.handled_by.name}
-            th #{flow.quantity}
-            th #{flow.amount}
-            th #{flow.details}
-            th #{flow.action}
-            th #{flow.branch.name}
-            td
-              if isAdmin || user._id.toString() === flow.entered_by._id.toString()
-                span.btn.btn-primary.glyphicon.glyphicon-pencil(
-                  data-target='#edit_' + flow._id data-toggle='modal')
-              span.btn.btn-success.glyphicon.glyphicon-eye-open(
-                data-target='#view_' + flow._id data-toggle='modal')
-              if isAdmin
-                span.btn.btn-danger.glyphicon.glyphicon-remove(
-                  data-target='#delete_' + flow._id data-toggle='modal')
-        
-            // editing
-            .modal.fade(id='edit_'+flow._id
-              tab-index='-1' role='dialog' aria-labelby='EditFlow' 
-              aria-hidden='true')
-              
-              .modal-dialog(role='document')
-                .modal-content
-                  form(action=flow.url, method="post")
-                    .modal-header
-                      h4.modal-title Edit Stock Flow
-                      button.close(type='button' data-dismiss='modal' aria-label='Close')
-                        span(aria-hidden='true') &times;
-                    .modal-body
-                      .form-group
-                        label(for="item") Item
-                        select#item.form-control(
-                          placeholder='Select a An Item' name='item'
-                          required='true')
-                          option(value="") -- Item --
-                          each item in items
-                            option(value=item._id
-                              selected=(flow.item._id.toString()===item._id.toString())
-                              ) #{item.name}
-                          else
-                            option(value="") No Items
+      thead
+        tr
+          th(data-field='id' data-sortable='true') Date
+          th(data-field='item' data-sortable='true') Item
+          th(data-field='handled_by') Handled By
+          th(data-field='qtty' data-sortable='true') Qtty
+          th(data-field='amount' data-sortable='true') Amount
+          th(data-field='details') Details
+          th(data-field='action')  Action
+          th(data-field='branch') Branch
+          th Actions
+      tbody
+        if flows.length
+          each flow in flows
+            tr
+              td #{flow.entry_date_formated}
+              td #{flow.item.name}
+              th #{flow.handled_by.name}
+              th #{flow.quantity}
+              th #{flow.amount}
+              th #{flow.details}
+              th #{flow.action}
+              th #{flow.branch.name}
+              td
+                if user.admin || user._id.toString() === flow.entered_by._id.toString()
+                  span.btn.btn-primary.btn-sm(
+                    data-target='#edit_' + flow._id data-toggle='modal')
+                    i.fas.fa-edit
+                span.btn.btn-success.btn-sm(
+                  data-target='#view_' + flow._id data-toggle='modal')
+                  i.fas.fa-eye
+                if user.admin
+                  span.btn.btn-danger.btn-sm(
+                    data-target='#delete_' + flow._id data-toggle='modal')
+                    i.fas.fa-trash
+          
+              // editing
+              .modal.fade(id='edit_'+flow._id
+                tab-index='-1' role='dialog' aria-labelby='EditFlow' 
+                aria-hidden='true')
+                
+                .modal-dialog(role='document')
+                  .modal-content
+                    form(action=flow.url, method="post")
+                      .modal-header
+                        h4.modal-title Edit Stock Flow
+                        button.close(type='button' data-dismiss='modal' aria-label='Close')
+                          span(aria-hidden='true') &times;
+                      .modal-body
+                        .form-group
+                          label(for="item") Item
+                          select#item.form-control(
+                            placeholder='Select a An Item' name='item'
+                            required='true')
+                            option(value="") -- Item --
+                            each item in items
+                              option(value=item._id
+                                selected=(flow.item._id.toString()===item._id.toString())
+                                ) #{item.name}
+                            else
+                              option(value="") No Items
 
-                      .form-group
-                        .row
-                          .col-sm-6
-                            label(for="handled_by") Handled By
-                            select#handled_by.form-control(
-                              placeholder='Select a Worker' name='handled_by'
-                              required='true')
-                              option(value="") -- Worker --
-                              each worker in workers
-                                option(value=worker._id
-                                  selected=(flow.handled_by._id.toString()===worker._id.toString())
-                                  ) #{worker.name}
-                              else
-                                option(value="") No Workers
-                          .col-sm-6
-                            label(for="branch") Branch
-                            select#branch.form-control(
-                              placeholder='Select a Branch' name='branch'
-                              required='true')
-                              option(value="") -- Branch --
-                              each branch in branches
-                                option(value=branch._id
-                                  selected=(flow.branch._id.toString()===branch._id.toString())
-                                  ) #{branch.name}
-                              else
-                                option(value="") No Branches
-                      input#entered_by(
-                        type='hidden' value=user._id required=true name='entered_by')
-                    
-                      .form-group
-                        .row
-                          .col-sm-6
-                            label(for="quantity") Quantity
-                            input#quantity.form-control(
-                              type='number' placeholder='Quantity' min='0'
-                              required='true' name='quantity' value=flow.quantity)
-
-                          .col-sm-6
-                            label(for="action") Action/Procedure
-                            select#action.form-control(
-                              placeholder='Select an Action' name='action'
-                              required='true')
-                              option(value="") -- Action --
-                              option(value="Sold" 
-                                selected=(flow.action==='Sold')) Sold
-                              option(value="Rented" 
-                                selected=(flow.action==='Rented')) Rented
-                              option(value="Used" 
-                                selected=(flow.action==='Used')) Used
-                              option(value="Purchased" 
-                                selected=(flow.action==='Purchased')) Purchased
-                              option(value="Returned In" 
-                                selected=(flow.action==='Returned In')) Returned In
-                              option(value="Returned Out" 
-                                selected=(flow.action==='Returned Out')) Returned Out
+                        .form-group
+                          .row
+                            .col-sm-6
+                              label(for="handled_by") Handled By
+                              select#handled_by.form-control(
+                                placeholder='Select a Worker' name='handled_by'
+                                required='true')
+                                option(value="") -- Worker --
+                                each worker in workers
+                                  option(value=worker._id
+                                    selected=(flow.handled_by._id.toString()===worker._id.toString())
+                                    ) #{worker.name}
+                                else
+                                  option(value="") No Workers
+                            .col-sm-6
+                              label(for="branch") Branch
+                              select#branch.form-control(
+                                placeholder='Select a Branch' name='branch'
+                                required='true')
+                                option(value="") -- Branch --
+                                each branch in branches
+                                  option(value=branch._id
+                                    selected=(flow.branch._id.toString()===branch._id.toString())
+                                    ) #{branch.name}
+                                else
+                                  option(value="") No Branches
+                        input#entered_by(
+                          type='hidden' value=user._id required=true name='entered_by')
                       
-                      .form-group
-                        label(for="amount") Amount [If Any]
-                        input#amount.form-control(
-                          type='number' placeholder='Enter Amount'
-                          requird='true' name='amount' 
-                          value=flow.amount)
+                        .form-group
+                          .row
+                            .col-sm-6
+                              label(for="quantity") Quantity
+                              input#quantity.form-control(
+                                type='number' placeholder='Quantity' min='0'
+                                required='true' name='quantity' value=flow.quantity)
 
-                      .form-group
-                        .row
-                          .col-sm-6
-                            label(for="quality") Quality
-                            select#quality.form-control(
-                              name="quality" placeholder='Select Quality' 
-                              required='true')
-                              option(value="") -- Quality --
-                              option(value="Excellent"
-                                selected=(flow.quality==='Excellent')) Excellent
-                              option(value="Good"
-                                selected=(flow.quality==='Good')) Good
-                              option(value="Fair"
-                                selected=(flow.quality==='Fair')) Fair
-                              option(value="Poor"
-                                selected=(flow.quality==='Poor')) Poor
+                            .col-sm-6
+                              label(for="action") Action/Procedure
+                              select#action.form-control(
+                                placeholder='Select an Action' name='action'
+                                required='true')
+                                option(value="") -- Action --
+                                option(value="Sold" 
+                                  selected=(flow.action==='Sold')) Sold
+                                option(value="Rented" 
+                                  selected=(flow.action==='Rented')) Rented
+                                option(value="Used" 
+                                  selected=(flow.action==='Used')) Used
+                                option(value="Purchased" 
+                                  selected=(flow.action==='Purchased')) Purchased
+                                option(value="Returned In" 
+                                  selected=(flow.action==='Returned In')) Returned In
+                                option(value="Returned Out" 
+                                  selected=(flow.action==='Returned Out')) Returned Out
                         
-                          .col-sm-6
-                            - let dt = flow.entry_date
-                            - let y = dt.getFullYear()
-                            - let m = (dt.getMonth()+1+'').padStart(2, '0')
-                            - let d = (dt.getDate()+'').padStart(2,'0')
-                            label(for="entry_date") Entry Date
-                            input#entry_date.form-control(placeholder='Enter Entry Date'
-                              type="date" name='entry_date' required=true 
-                              value=y + '-' + m + '-' + d)
-                              
-                      .form-group
-                        label(for="details") Details
-                        textarea#details.form-control(
-                          name="details", rows="3" required='true' 
-                          placeholder='Enter the Details of the Stock Item') #{flow.details}
+                        .form-group
+                          label(for="amount") Amount [If Any]
+                          input#amount.form-control(
+                            type='number' placeholder='Enter Amount'
+                            requird='true' name='amount' 
+                            value=flow.amount)
 
-                    .modal-footer
-                      button.btn.btn-success(type='submit') Save 
-                      button.btn.btn-danger(type='button' data-dismiss='modal') Close
+                        .form-group
+                          .row
+                            .col-sm-6
+                              label(for="quality") Quality
+                              select#quality.form-control(
+                                name="quality" placeholder='Select Quality' 
+                                required='true')
+                                option(value="") -- Quality --
+                                option(value="Excellent"
+                                  selected=(flow.quality==='Excellent')) Excellent
+                                option(value="Good"
+                                  selected=(flow.quality==='Good')) Good
+                                option(value="Fair"
+                                  selected=(flow.quality==='Fair')) Fair
+                                option(value="Poor"
+                                  selected=(flow.quality==='Poor')) Poor
+                          
+                            .col-sm-6
+                              - let dt = flow.entry_date
+                              - let y = dt.getFullYear()
+                              - let m = (dt.getMonth()+1+'').padStart(2, '0')
+                              - let d = (dt.getDate()+'').padStart(2,'0')
+                              label(for="entry_date") Entry Date
+                              input#entry_date.form-control(placeholder='Enter Entry Date'
+                                type="date" name='entry_date' required=true 
+                                value=y + '-' + m + '-' + d)
+                                
+                        .form-group
+                          label(for="details") Details
+                          textarea#details.form-control(
+                            name="details", rows="3" required='true' 
+                            placeholder='Enter the Details of the Stock Item') #{flow.details}
 
-            // view details
-            .modal.fade( id='view_' + flow._id
-              tab-index='-1' role='dialog' aria-labelby='ViewItem' 
-              aria-hidden='true')
-              .modal-dialog(role='document')
-                .modal-content
-                  .modal-header
-                    h4.modal-title Item Details
-                    button.close(type='button' data-dismiss='modal' aria-label='Close')
-                      span(aria-hidden='true') &times;
-                  .modal-body
+                      .modal-footer
+                        button.btn.btn-success(type='submit') Save 
+                        button.btn.btn-danger(type='button' data-dismiss='modal') Close
 
-                    h4.text-center #[strong Item]
-                    .row
-                      .col-sm-2.text-right #[strong Item:]
-                      .col-sm-4 #{flow.item.name}
-                      .col-sm-2.text-right #[strong Status:]
-                      .col-sm-4 #{flow.item.status}
-                    .row
-                      - let brd = {}
-                      - let cat = {}
-                      - let sup = {}
-                      each brand in brands
-                        if brand._id.toString()===flow.item.brand.toString()
-                          -brd = brand
-                      each caty in categories
-                        if caty._id.toString()===flow.item.category.toString()
-                          -cat = caty
-                      each supr in suppliers
-                        if supr._id.toString()===flow.item.supplier.toString()
-                          -sup = supr
-                      .col-sm-2.text-right #[strong Brand:]
-                      .col-sm-4 #{brd.name}
-                      .col-sm-2.text-right #[strong Color:]
-                      .col-sm-4 #{flow.item.color}
-                    .row
-                      .col-sm-2.text-right #[strong Category:]
-                      .col-sm-4 #{cat.name}
-                      .col-sm-2.text-right #[strong Supplier:]
-                      .col-sm-4 #{sup.name}
-                    hr
-                    .row
-                      .col-sm-2.text-right #[strong Description:]
-                      .col-sm-10 #{flow.item.description}
-                    
-                    hr
-                    h4.text-center #[strong Flow Details]
-                    .row
-                      .col-sm-3.text-right #[strong Handled By:]
-                      .col-sm-3 #{flow.handled_by.name}
-                      .col-sm-3.text-right #[strong Entered By:]
-                      .col-sm-3 #{flow.entered_by.name}
-                    .row
-                      .col-sm-3.text-right #[strong Quantity:]
-                      .col-sm-3 #{flow.quantity}
-                      .col-sm-3.text-right #[strong Action:]
-                      .col-sm-3 #{flow.action}
-                    
-                    hr
-                    .row
-                      .col-sm-3.text-right #[strong Amount:]
-                      .col-sm-9 #{flow.amount}
-                    .row
-                      .col-sm-3.text-right #[strong Details:]
-                      .col-sm-9 #{flow.details}
-
-                  .modal-footer
-                    button.btn.btn-primary(type='button' data-dismiss='modal') Close
-
-            // deleting
-            .modal.fade( id='delete_' + flow._id
-              tab-index='-1' role='dialog' aria-labelby='DeleteItem' 
-              aria-hidden='true')
-              .modal-dialog(role='document')
-                .modal-content
-                  form(action=flow.url + '/delete', method="post")
+              // view details
+              .modal.fade( id='view_' + flow._id
+                tab-index='-1' role='dialog' aria-labelby='ViewItem' 
+                aria-hidden='true')
+                .modal-dialog(role='document')
+                  .modal-content
                     .modal-header
-                      h4.modal-title Delete Stock Flow of: #{flow.item.name}
+                      h4.modal-title Item Details
                       button.close(type='button' data-dismiss='modal' aria-label='Close')
                         span(aria-hidden='true') &times;
                     .modal-body
-                      input#flowid.form-control(
-                        type="hidden" name='flowid' required='true'
-                        value=flow._id)
+
+                      h4.text-center #[strong Item]
                       .row
-                        .col-sm-4.text-right #[strong Carried Out On:] 
-                        .col-sm-8 #{flow.entry_date_formated}
+                        .col-2.text-right #[strong Item:]
+                        .col-4 #{flow.item.name}
+                        .col-2.text-right #[strong Status:]
+                        .col-4 #{flow.item.status}
                       .row
-                        .col-sm-4.text-right #[strong Details:] 
-                        .col-sm-8 #{flow.details}
+                        - let brd = {}
+                        - let cat = {}
+                        - let sup = {}
+                        each brand in brands
+                          if brand._id.toString()===flow.item.brand.toString()
+                            -brd = brand
+                        each caty in categories
+                          if caty._id.toString()===flow.item.category.toString()
+                            -cat = caty
+                        each supr in suppliers
+                          if supr._id.toString()===flow.item.supplier.toString()
+                            -sup = supr
+                        .col-2.text-right #[strong Brand:]
+                        .col-4 #{brd.name}
+                        .col-2.text-right #[strong Color:]
+                        .col-4 #{flow.item.color}
+                      .row
+                        .col-2.text-right #[strong Category:]
+                        .col-4 #{cat.name}
+                        .col-2.text-right #[strong Supplier:]
+                        .col-4 #{sup.name}
+                      hr
+                      .row
+                        .col-2.text-right #[strong Description:]
+                        .col-10 #{flow.item.description}
+                      
+                      hr
+                      h4.text-center #[strong Flow Details]
+                      .row
+                        .col-3.text-right #[strong Handled By:]
+                        .col-3 #{flow.handled_by.name}
+                        .col-3.text-right #[strong Entered By:]
+                        .col-3 #{flow.entered_by.name}
+                      .row
+                        .col-3.text-right #[strong Quantity:]
+                        .col-3 #{flow.quantity}
+                        .col-3.text-right #[strong Action:]
+                        .col-3 #{flow.action}
+                      
+                      hr
+                      .row
+                        .col-3.text-right #[strong Amount:]
+                        .col-9 #{flow.amount}
+                      .row
+                        .col-3.text-right #[strong Details:]
+                        .col-9 #{flow.details}
 
                     .modal-footer
-                      button.btn.btn-danger(type='submit') Delete
-                      button.btn.btn-secondary(type='button' data-dismiss='modal') Cancel
+                      button.btn.btn-primary(type='button' data-dismiss='modal') Close
+
+              // deleting
+              .modal.fade( id='delete_' + flow._id
+                tab-index='-1' role='dialog' aria-labelby='DeleteItem' 
+                aria-hidden='true')
+                .modal-dialog(role='document')
+                  .modal-content
+                    form(action=flow.url + '/delete', method="post")
+                      .modal-header
+                        h4.modal-title Delete Stock Flow of: #{flow.item.name}
+                        button.close(type='button' data-dismiss='modal' aria-label='Close')
+                          span(aria-hidden='true') &times;
+                      .modal-body
+                        input#flowid.form-control(
+                          type="hidden" name='flowid' required='true'
+                          value=flow._id)
+                        .row
+                          .col-sm-4.text-right #[strong Carried Out On:] 
+                          .col-sm-8 #{flow.entry_date_formated}
+                        .row
+                          .col-sm-4.text-right #[strong Details:] 
+                          .col-sm-8 #{flow.details}
+
+                      .modal-footer
+                        button.btn.btn-danger(type='submit') Delete
+                        button.btn.btn-secondary(type='button' data-dismiss='modal') Cancel
+
+block scripts
+  script.
+    var items = JSON.parse(document.getElementById('items').value);
+    var workers = JSON.parse(document.getElementById('workers').value);
+    var branches = JSON.parse(document.getElementById('branches').value);
+
+    function setQuantity(id=''){
+      var el_item = document.getElementById('item'+id);
+      var el_quantity = document.getElementById('quantity'+id);
+      var selected_item_id = el_item.value;
+      
+      for(item of items){
+        if(item._id.toString() == selected_item_id){
+          el_quantity.max = item.quantity;
+          
+        }
+      }
+    }
+
+    function setBranch(id=''){
+      var el_handled_by = document.getElementById('handled_by'+id);
+      var el_branch = document.getElementById('branch'+id);
+      var selected_worker_id = el_handled_by.value;
+      
+      for(worker of workers){
+        if(worker._id.toString() == selected_worker_id){
+          var ind = 1;
+          for(branch of branches){
+            if(branch._id.toString()==worker.branch._id.toString()){
+              el_branch.selectedIndex = ind;
+            }
+            ind ++;
+          }
+          
+        }
+      }
+    }

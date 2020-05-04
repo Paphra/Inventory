@@ -19,30 +19,30 @@ block content
           
           .modal-dialog(role='document')
             .modal-content
-              - let url = (return_item?return_item.url:'')
+              - let url = (returned?returned.url:'')
               form(action=(url?url:"/brands"), method="post")
                 .modal-header
-                  h4.modal-title #{return_item?'Update':'Add New'} Brand
+                  h4.modal-title #{returned?'Update':'Add New'} Brand
                   button.close(type='button' data-dismiss='modal' aria-label='Close')
                     span(aria-hidden='true') &times;
                 .modal-body
                   .errors
-                    if return_item
-                      if return_item.errors
+                    if returned
+                      if returned.errors
                         ul
-                          each err in return_item.errors
+                          each err in returned.errors
                             li= err.msg
 
                   .form-group
                     label(for="name") Brand Name: 
                     input#name.form-control(
                       type="text" placeholder='Name Of Brand' name='name' 
-                      required='true' value=(return_item?return_item.name:''))
+                      required='true' value=(returned?returned.name:''))
                   .form-group
                     label(for='description') Description:
                     textarea#description.form-control(
                       name="description", rows='3' placeholder='Enter Brand Description'
-                      ) #{return_item?return_item.description:''}
+                      ) #{returned?returned.description:''}
                 .modal-footer
                   button.btn.btn-success(type='submit') Save 
                   button.btn.btn-danger(type='button' data-dismiss='modal') Close
@@ -60,15 +60,17 @@ block content
                   h4 #[strong #{brand.name}]
                   p(style='padding-left:10px') #{brand.description} 
                 .col-sm-3
-                  span.btn.btn-primary.glyphicon.glyphicon-pencil(
+                  span.btn.btn-primary.btn-sm(
                     data-target='#edit_' + brand._id, data-toggle='modal' role='button')
+                    i.fas.fa-edit
                   - let hasItems = false
                   each item in items
                     if item.brand.toString() === brand._id.toString()
                       - hasItems = true
                   if !hasItems
-                    span.btn.btn-danger.glyphicon.glyphicon-remove(
+                    span.btn.btn-danger.btn.sm(
                       data-target='#delete_' + brand._id data-toggle='modal' role='button')
+                      i.fas.fa-trash
                   
                   // editing
                   .modal.fade(id='edit_' + brand._id

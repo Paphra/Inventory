@@ -14,7 +14,7 @@ var StockSchema = new Schema({
   category: { type: Schema.Types.ObjectId, ref: 'Category', required: true },
   status:   { type: String, required: true, enum: ['Available', 'Sold Out'], default: 'Available' },
   unit_price:{ type: Number, required: true },
-  supplier: [{ type: Schema.Types.ObjectId, ref: 'Supplier', required: true }],
+  supplier: { type: Schema.Types.ObjectId, ref: 'Supplier', required: true },
   modification: {type: Date, required: true, default: Date.now }
 });
 

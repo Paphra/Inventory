@@ -1,9 +1,34 @@
 body {
-  padding-top: 60px;
+  background-color: #dedede;
+}
+
+.navbar{
+  margin-bottom: 20px;
+}
+
+.nav-item.active{
+  background-color: #ffffff;
+  border-radius: 1rem;
+  padding: 0 1rem;
+}
+
+.card{
+  background-color: #eeeeee;
+}
+
+.content{
+  padding-top: 5rem;
 }
 
 a {
   color: #00B7FF;
+}
+
+.bg-white, table, canvas{
+  background-color: #fefefe;
+  padding: 20px;
+  border-radius: 1em;
+  font-size: 13px;
 }
 
 .footer{

@@ -19,44 +19,44 @@ block content
           
           .modal-dialog(role='document')
             .modal-content
-              - let url = (return_item?return_item.url:'')
+              - let url = (returned?returned.url:'')
               form(action=(url?url:'/branches'), method="post")
                 .modal-header
-                  h4.modal-title #{return_item?'Update':'Add New'} Branch
+                  h4.modal-title #{returned?'Update':'Add New'} Branch
                   button.close(type='button' data-dismiss='modal' aria-label='Close')
                     span(aria-hidden='true') &times;
                 .modal-body
                   .errors
-                    if return_item
-                      if return_item.errors
+                    if returned
+                      if returned.errors
                         ul
-                          each err in return_item.errors
+                          each err in returned.errors
                             li= err.msg
 
                   .form-group
                     label(for="name") Branch Name: 
                     input#name.form-control(
                       type="text" placeholder='Name Of the Branch' name='name' 
-                      required='true' value=(return_item?return_item.name:''))
+                      required='true' value=(returned?returned.name:''))
                   .row
                     .col-md-6
                       .form-group
                         label(for="email") Email Address: 
                         input#email.form-control(
                           type="email" placeholder='Branch\'s Email' name='email' 
-                          required='true' value=(return_item?return_item.email:''))
+                          required='true' value=(returned?returned.email:''))
                     .col-md-6
                       .form-group
                         label(for="phone") Phone Number: 
                         input#phon.form-control(
                           type="tel" placeholder='Branch\'s Phone' name='phone' 
-                          required='true' value=(return_item?return_item.phone:''))
+                          required='true' value=(returned?returned.phone:''))
                       
                   .form-group
                     label(for='address') Address:
                     textarea#address.form-control(
                       name="address", rows='3' placeholder='Enter Branch Address'
-                      value=(return_item?return_item.address:''))
+                      value=(returned?returned.address:''))
 
                 .modal-footer
                   button.btn.btn-success(type='submit') Save 
@@ -74,10 +74,12 @@ block content
                   .col-sm-8
                     h4 #{branch.name}
                   .col-sm-4
-                    span.btn.btn-primary.glyphicon.glyphicon-pencil(
+                    span.btn.btn-primary.btn-sm(
                       data-toggle='modal' data-target='#edit_' + branch._id)
-                    span.btn.btn-success.glyphicon.glyphicon-eye-open(
+                      i.fas.fa-edit
+                    span.btn.btn-success.btn-sm(
                       data-toggle='modal' data-target='#view_' + branch._id)
+                      i.fas.fa-eye
                     - let hb = false
                     - let id = branch._id.toString();
                     each flow in flows
@@ -89,9 +91,10 @@ block content
                         - hb = true
 
                     if !hb
-                      span.btn.btn-danger.glyphicon.glyphicon-remove(
+                      span.btn.btn-danger.btn-sm(
                         data-toggle='modal' data-target='#delete_' + branch._id)
-                
+                        i.fas.fa-trash
+
                 // editing
                 .modal.fade(id='edit_'+ branch._id
                   tab-index='-1' role='dialog' aria-labelby='EditBranch' 
@@ -146,29 +149,29 @@ block content
                           span(aria-hidden='true') &times;
                       .modal-body
                         .row
-                          .col-sm-3.text-right
+                          .col-3.text-right
                             p #[strong Name: ]
-                          .col-sm-9
+                          .col-9
                             p #{branch.name}
                         .row
-                          .col-sm-3.text-right
+                          .col-3.text-right
                             p #[strong Email: ]
-                          .col-sm-9
+                          .col-9
                             p #{branch.email}
                         .row
-                          .col-sm-3.text-right
+                          .col-3.text-right
                             p #[strong Phone: ]
-                          .col-sm-9
+                          .col-9
                             p #{branch.phone}
                         .row
-                          .col-sm-3.text-right
+                          .col-3.text-right
                             p #[strong Address: ]
-                          .col-sm-9
+                          .col-9
                             p #{branch.address}
                         .row
-                          .col-sm-3.text-right
+                          .col-3.text-right
                             p #[strong Entered On: ]
-                          .col-sm-9
+                          .col-9
                             p #{branch.entryDateFormated}
                             
                       .modal-footer

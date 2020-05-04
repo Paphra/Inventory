@@ -6,31 +6,31 @@ block content
     .row
       .col-sm-8
         blockquote
-          p This shows the list of all the Workers of the System
+          i This shows the list of all the Workers of the Business
       
       .col-sm-4
         button.btn.btn-success.btn-block(
           data-toggle='modal' data-target='#add') New Worker
 
-      .col-sm-12
+      .col-md-12
         #add.modal.fade(
           tab-index='-1' role='dialog' aria-labelby='AddNewWorker' 
           aria-hidden='true')
           
           .modal-dialog(role='document')
             .modal-content
-              - let url = (return_item?return_item.url:'')
+              - let url = (returned?returned.url:'')
               form(action=(url?url:"/workers"), method="post")
                 .modal-header
-                  h4.modal-title #{return_item?'Update':'Add New'} Worker
+                  h4.modal-title #{returned?'Update':'Add New'} Worker
                   button.close(type='button' data-dismiss='modal' aria-label='Close')
                     span(aria-hidden='true') &times;
                 .modal-body
                   .errors
-                    if return_item
-                      if return_item.errors
+                    if returned
+                      if returned.errors
                         ul
-                          each err in return_item.errors
+                          each err in returned.errors
                             li= err.msg
 
                   .row
@@ -40,27 +40,27 @@ block content
                         input#first_name.form-control(
                           type="text" placeholder='Worker\'s First Name' 
                           name='first_name' required='true' min=3
-                          value=(return_item?return_item.first_name:''))
+                          value=(returned?returned.first_name:''))
                     .col-sm-6
                       .form-group
                         label(for="last_name") Last Name: 
                         input#last_name.form-control( min=3
                           type="text" placeholder='Worker\'s Last Name'
                           name='last_name' required='true'
-                          value=(return_item?return_item.last_name:''))
+                          value=(returned?returned.last_name:''))
                   .row
                     .col-md-6
                       .form-group
                         label(for="email") Email Address: 
                         input#email.form-control(
                           type="email" placeholder='Worker\'s Email' name='email' 
-                          required='true' value=(return_item?return_item.email:''))
+                          required='true' value=(returned?returned.email:''))
                     .col-md-6
                       .form-group
                         label(for="phone") Phone Number: 
                         input#phon.form-control(
                           type="tel" placeholder='Worker\'s Phone' name='phone' 
-                          required='true' value=(return_item?return_item.phone:''))
+                          required='true' value=(returned?returned.phone:''))
                   .row
                     .col-md-6
                       .form-group
@@ -70,361 +70,401 @@ block content
                           name='branch' required='true')
                           each branch in branches
                             option(value=branch._id
-                              selected=(return_item?return_item.branch===branch._id.toString():false)
+                              selected=(returned?returned.branch===branch._id.toString():false)
                               ) #{branch.name}
                           else
                             option(value="") No Branches
                     .col-md-6
                       .form-group
                         label(for="position") Position at Work: 
-                        select#position.form-control(
-                          type="select" placeholder='Worker\'s Position At Work'
-                          name='position' required='true')
-                          each pos in positions
-                            option(value=pos._id
-                              selected=(return_item?return_item.position===pos._id.toString():false)
-                              ) #{pos.name}
-                          else
-                            option(value="") No Positions
-                    
+                        input#position.form-control(
+                          type="text" placeholder="Worker's Position At Work"
+                          name='position' required='true'
+                          value=(returned?returned.position:''))
+                          
                   .form-group
                     label(for="status") Employee Status
                     select#status.form-control(
-                      type="select" placeholder='Worker\'s Status At Work'
+                      type="select" placeholder="Worker's Status At Work"
                       name='status' required='true')
                       option(value="") -- Status --
                       option(value='Active' 
-                        selected=(return_item?return_item.status === 'Active':false)) Active
+                        selected=(returned?returned.status === 'Active':false)) Active
                       option(value='Inactive' 
-                        selected=(return_item?return_item.status === 'Inactive':false)) Inactive
+                        selected=(returned?returned.status === 'Inactive':false)) Inactive
 
                   hr
-                  label(for="user") Check if this Worker is a User
-                  .form-group
-                    input#user( onChange="userCheck()" style='margin-left:20px'
-                      type="checkbox", name="user" checked=false)
-                    label(style='padding-left:10px' for='user')  User ?
-                    input#user_val(type='number' name='user_val' hidden='true'
-                      value=(return_item?return_item.user_val:0))
-
                   .row
                     .col-md-6
                       .form-group
-                        label(for="username") Username: 
+                        label(for="is_user") Is User?
+                        select#is_user.form-control(onChange="isUserCheck()" name="is_user")
+                          option(value="0" selected=(returned?returned.is_user==='0':false)) No
+                          option(value="1" selected=(returned?returned.is_user==='1':false)) Yes
+
+                    .col-md-6
+                      .form-group
+                        label(for="is_admin") Is User Admin ?
+                        select#is_admin.form-control(name="is_admin" disabled=true)
+                          option(value="0" selected=(returned?returned.is_admin==='0':false)) No
+                          option(value="1" selected=(returned?returned.is_admin==='1':false)) Yes
+                  .row
+                    .col-md-12
+                      .form-group
+                        label(for="username") Username
                         input#username.form-control(
                           type="text" placeholder='Enter Username' 
                           name='username' disabled=true min=5
-                          value=(return_item?return_item.username:''))
-
-                    .col-md-6
-                      .form-group
-                        label(for="role") Role: 
-                        select#role.form-control(
-                          type="select" placeholder='Worker\'s Role'
-                          name='role' disabled=true)
-                          option(value="") Select a Role
-                          each role in roles
-                            option(value=role._id
-                              selected=(return_item?return_item.role=== role._id.toString():false)
-                              ) #{role.name}
-                          else
-                            option(value="") No Roles
-                      
+                          value=(returned?returned.username:''))
+  
                   .row
                     .col-md-6
                       .form-group
-                        label(for="password") Password: 
+                        label(for="password") Password
                         input#password.form-control(
-                          type="password" placeholder='Worker\'s Password'
-                          name='password' disabled=true min=5
-                          value=(return_item?return_item.password:''))
+                          type="password" placeholder="Worker's Password"
+                          name='password' disabled=true min=5 onKeyUp="passwordCheck()"
+                          value='')
 
                     .col-md-6
                       .form-group
-                        label(for="confirm_password") Confirm Password: 
-                        input#confirm_password.form-control( onKeyUp="passwordCheck(this.value)"
+                        label(for="confirm_password") Confirm Password
+                        input#confirm_password.form-control(onKeyUp="passwordCheck()"
                           type="password" placeholder='Confirm Password'
                           name='confirm_password' disabled=true min=5
-                          value=(return_item?return_item.confirm_password:''))
-                        label#password_confirm
+                          value='')
+                    i.col-md-12.text-center.text-danger(id="password_match")
 
                 .modal-footer
-                  button.btn.btn-success(type='submit') Save 
+                  button#save.btn.btn-success(type='submit') Save 
                   button.btn.btn-danger(type='button' data-dismiss='modal') Close
   
-  table#table.table.table-compressed.table-bordered(
-    data-toggle="table"
-    data-search="true"
-    data-trim-on-search='false'
-    data-show-columns="true"
-    data-show-columns-search='true'
-    data-show-columns-toggle-all='true'
-    data-show-print='true'
-    data-show-export='true'
-    data-sort-class="table-active"
-    data-sortable="true"
-    data-pagination="true"
-    data-show-pagination-switch='true'
-    data-page-number="1"
-    data-show-toggle='true'
-    data-show-fullscreen='true'
-    data-page-list="[10, 25, 50, 100, 200, All]"
-    data-width='100%')
+  hr
 
-    thead
-      tr
-        th(data-field='date' data-sortable='true') Date
-        th(data-field='name' data-sortable='true') Name
-        th(data-field='email' data-sortable='true') Email
-        th(data-field='phone' data-sortable='true') Phone
-        th(data-field='position' data-sortable='true') Position
-        th(data-field='branch' data-sortable='true') Branch
-        th(data-field='worker' data-sortable='true') User
-        th Actions
-    tbody
-      if workers.length
-        each worker in workers
-          tr
-            td #{worker.entry_date_formated}
-            td #{worker.name}
-            td #{worker.email}
-            td #{worker.phone}
-            td #{worker.position.name}
-            td #{worker.branch.name}
-            td
-              input(type="checkbox" checked=worker.user disabled='true')
-            td
-              span.btn.btn-primary.glyphicon.glyphicon-pencil(
-                data-toggle='modal' data-target='#edit_' + worker._id)
-              span.btn.btn-success.glyphicon.glyphicon-eye-open(
-                data-toggle='modal' data-target='#view_' + worker._id)
-              - let ha = false
-              - let id = worker._id.toString()
-              each flow in flows
-                if flow.handled_by.toString() === id || flow.entered_by._id.toString() === id
+  .bg-white.shadow
+    table#table.table.table-compressed.table-bordered(
+      data-toggle="table"
+      data-search="true"
+      data-trim-on-search='false'
+      data-show-columns="true"
+      data-show-columns-search='true'
+      data-show-columns-toggle-all='true'
+      data-show-print='true'
+      data-show-export='true'
+      data-sort-class="table-active"
+      data-sortable="true"
+      data-pagination="true"
+      data-show-pagination-switch='true'
+      data-page-number="1"
+      data-show-toggle='true'
+      data-show-fullscreen='true'
+      data-page-list="[10, 25, 50, 100, 200, All]"
+      data-width='100%')
+
+      thead
+        tr
+          th(data-field='date' data-sortable='true') Date
+          th(data-field='name' data-sortable='true') Name
+          th(data-field='email' data-sortable='true') Email
+          th(data-field='phone' data-sortable='true') Phone
+          th(data-field='position' data-sortable='true') Position
+          th(data-field='branch' data-sortable='true') Branch
+          th(data-field='worker' data-sortable='true') User
+          th Actions
+      tbody
+        if workers.length
+          each worker in workers
+            tr
+              td #{worker.entry_date_formated}
+              td #{worker.name}
+              td #{worker.email}
+              td #{worker.phone}
+              td #{worker.position}
+              td #{worker.branch.name}
+              td
+                input(type="checkbox" checked=worker.user disabled='true')
+              td
+                if user.admin
+                  span.btn.btn-primary.btn-sm(
+                    data-toggle='modal' data-target='#edit_' + worker._id)
+                    i.fas.fa-user-edit
+                span.btn.btn-success.btn-sm(
+                  data-toggle='modal' data-target='#view_' + worker._id)
+                  i.fas.fa-eye
+                - let ha = false
+                - let id = worker._id.toString()
+                each flow in flows
+                  if flow.handled_by.toString() === id || flow.entered_by._id.toString() === id
+                    - ha = true
+                if worker.id === user.id
                   - ha = true
-              if worker._id.toString() === user._id.toString()
-                - ha = true
-              if !ha
-                span.btn.btn-danger.glyphicon.glyphicon-remove(
-                  data-toggle='modal' data-target='#delete_' + worker._id)
+                if !ha
+                  span.btn.btn-danger.btn-sm(
+                    data-toggle='modal' data-target='#delete_' + worker._id)
+                    i.fas.fa-trash
+              // editing
+              .modal.fade( id='edit_' + worker._id
+                tab-index='-1' role='dialog' aria-labelby='EditWorker' 
+                aria-hidden='true')
                 
-            // editing
-            .modal.fade( id='edit_' + worker._id
-              tab-index='-1' role='dialog' aria-labelby='EditWorker' 
-              aria-hidden='true')
-              
-              .modal-dialog(role='document')
-                .modal-content
-                  form(action=worker.url, method="post")
-                    .modal-header
-                      h4.modal-title Edit Worker
-                      button.close(type='button' data-dismiss='modal' aria-label='Close')
-                        span(aria-hidden='true') &times;
-                    .modal-body
-                      .row
-                        .col-sm-6
-                          .form-group
-                            label(for="first_name") First Name: 
-                            input#first_name.form-control( min=3
-                              type="text" placeholder='Worker\'s First Name' 
-                              name='first_name' required='true'
-                              value=worker.first_name)
-                        .col-sm-6
-                          .form-group
-                            label(for="last_name") Last Name: 
-                            input#last_name.form-control(
-                              type="text" placeholder='Worker\'s Last Name'
-                              name='last_name' required='true' min=3
-                              value=worker.last_name)
-                      .row
-                        .col-md-6
-                          .form-group
-                            label(for="email") Email Address: 
-                            input#email.form-control(
-                              type="email" placeholder='Worker\'s Email' name='email' 
-                              required='true' value=worker.email)
-                        .col-md-6
-                          .form-group
-                            label(for="phone") Phone Number: 
-                            input#phon.form-control(
-                              type="tel" placeholder='Worker\'s Phone' name='phone' 
-                              required='true' value=worker.phone)
-                      .row
-                        .col-md-6
-                          .form-group
-                            label(for="branch") Branch: 
-                            select#branch.form-control(
-                              type="select" placeholder='Worker\'s Branch'
-                              name='branch' required='true')
-                              each branch in branches
-                                option(value=branch._id 
-                                  selected=(worker.branch._id.toString()===branch._id.toString())
-                                  ) #{branch.name}
-                              else
-                                option(value="") No Branches
-                        .col-md-6
-                          .form-group
-                            label(for="position") Position at Work: 
-                            select#position.form-control(
-                              type="select" placeholder='Worker\'s Position At Work'
-                              name='position' required='true')
-                              each pos in positions
-                                option(value=pos._id
-                                  selected=(worker.position._id.toString()===pos._id.toString())
-                                  ) #{pos.name}
-                              else
-                                option(value="") No Positions
-                      .form-group
-                        label(for="status") Employee Status
-                        select#status.form-control(
-                          type="select" placeholder='Worker\'s Status At Work'
-                          name='status' required='true')
-                          option(value="") -- Status --
-                          option(value='Active' 
-                            selected=(worker.status === 'Active')) Active
-                          option(value='Inactive' 
-                            selected=(worker.status === 'Inactive')) Inactive
-                             
-                      hr
-                      label Check if this Worker is a User
-                      .form-group
-                        input#user_u( onChange="userCheckU(this.value)" style='margin-left:20px'
-                          type="checkbox", name="user" checked=worker.user)
-                        label(for='user_u' style='padding-left:10px')  User ?
-                        input#user_val_u(type='number' name='user_val'
-                          value=(worker.user?1:0) hidden='true')
-
-                      .row
-                        .col-md-6
-                          .form-group
-                            label(for="username_u") Username: 
-                            input#username_u.form-control(min=5
-                              type="text" placeholder='Enter Username' 
-                              name='username' disabled=(!worker.user)
-                              value=worker.username)
-                        .col-md-6
-                          .form-group
-                            label(for="role_u") Role: 
-                            select#role_u.form-control(
-                              type="select" placeholder='Worker\'s Role'
-                              name='role' disabled=(!worker.user))
-                              option(value="") Select a Role
-                              each role in roles
-                                option(value=role._id
-                                  selected=(
-                                    worker.role?worker.role._id.toString()===role._id.toString():false)
-                                  ) #{role.name}
-                              else
-                                option(value="") No Roles
+                .modal-dialog(role='document')
+                  .modal-content
+                    form(action=worker.url, method="post")
+                      .modal-header
+                        h4.modal-title Edit Worker
+                        button.close(type='button' data-dismiss='modal' aria-label='Close')
+                          span(aria-hidden='true') &times;
+                      .modal-body
+                        .row
+                          .col-sm-6
+                            .form-group
+                              label(for="first_name") First Name
+                              input#first_name.form-control( min=3
+                                type="text" placeholder="Worker's First Name" 
+                                name='first_name' required='true'
+                                value=worker.first_name)
+                          .col-sm-6
+                            .form-group
+                              label(for="last_name") Last Name
+                              input#last_name.form-control(
+                                type="text" placeholder="Worker's Last Name"
+                                name='last_name' required='true' min=3
+                                value=worker.last_name)
+                        .row
+                          .col-md-6
+                            .form-group
+                              label(for="email") Email Address
+                              input#email.form-control(
+                                type="email" placeholder="Worker's Email" name='email' 
+                                required='true' value=worker.email)
+                          .col-md-6
+                            .form-group
+                              label(for="phone") Phone Number
+                              input#phon.form-control(
+                                type="tel" placeholder="Worker's Phone" name='phone' 
+                                required='true' value=worker.phone)
+                        .row
+                          .col-md-6
+                            .form-group
+                              label(for="branch") Branch
+                              select#branch.form-control(
+                                type="select" placeholder="Worker's Branch"
+                                name='branch' required='true')
+                                each branch in branches
+                                  option(value=branch._id 
+                                    selected=(worker.branch._id.toString()===branch._id.toString())
+                                    ) #{branch.name}
+                                else
+                                  option(value="") No Branches
                           
-                      .row
-                        .col-md-6
-                          .form-group
-                            label(for="password_u") Password: 
-                            input#password_u.form-control( min=5
-                              type="password" placeholder='Worker\'s Password'
-                              name='password' disabled=(!worker.user)
-                              value=worker.password)
-                        .col-md-6
-                          .form-group
-                            label(for="confirm_password") Confirm Password: 
-                            input#confirm_password_u.form-control( onKeyUp="passwordCheckU(this.value)"
-                              type="password" placeholder='Confirm Password' min=5
-                              name='confirm_password' disabled=(!worker.user)
-                              value=worker.password)
-                            label#password_confirm_u
-
-                    .modal-footer
-                      button.btn.btn-success(type='submit') Save 
-                      button.btn.btn-danger(type='button' data-dismiss='modal') Close
-                  
-            // viewing
-            .modal.fade(id='view_' + worker._id
-              tab-index='-1' role='dialog' aria-labelby='ViewUserDetails' 
-              aria-hidden='true')
-              .modal-dialog(role='document')
-                .modal-content
-                  .modal-header
-                    h4.modal-title Worker Details
-                    button.close(type='button' data-dismiss='modal' aria-label='Close')
-                      span(aria-hidden='true') &times;
-                  .modal-body
-                    .row
-                      .col-sm-3.text-right
-                        p #[strong Name: ]
-                      .col-sm-9
-                        p #{worker.name}
-                    .row
-                      .col-sm-3.text-right
-                        p #[strong Email: ]
-                      .col-sm-9
-                        p #{worker.email}
-                    .row
-                      .col-sm-3.text-right
-                        p #[strong Phone: ]
-                      .col-sm-9
-                        p #{worker.phone}
-                    .row
-                      .col-sm-3.text-right
-                        p #[strong Position: ]
-                      .col-sm-9
-                        p #{worker.position.name}
-                    .row
-                      .col-sm-3.text-right
-                        p #[strong Branch: ]
-                      .col-sm-9
-                        p #{worker.branch.name}
-                    .row
-                      .col-sm-3.text-right
-                        p #[strong Staus:]
-                      .col-sm-9
-                        p #{worker.status}
-                    
-                    if worker.user
-                      .row
-                        .col-sm-3.text-right
-                          p #[strong Username: ]
-                        .col-sm-9
-                          p #{worker.username}
-                      .row
-                        .col-sm-3.text-right
-                          p #[strong Role: ]
-                        .col-sm-9
-                          p #{worker.role.name}
-  
-                    .row
-                      .col-sm-3.text-right
-                        p #[strong Entered On: ]
-                      .col-sm-9
-                        p #{worker.entry_date_formated}
+                          .col-md-6
+                            .form-group
+                              label(for="position") Position at Work
+                              input#position.form-control(
+                                type="text" placeholder="Worker's Position At Work"
+                                name='position' required='true'
+                                value=worker.position)
+                                
+                        .form-group
+                          label(for="status") Employee Status
+                          select#status.form-control(
+                            type="select" placeholder="Worker's Status At Work"
+                            name='status' required='true')
+                            option(value="") -- Status --
+                            option(value='Active' 
+                              selected=(worker.status === 'Active')) Active
+                            option(value='Inactive' 
+                              selected=(worker.status === 'Inactive')) Inactive
+                              
+                        hr
+                        .row
+                          .col-md-6
+                            .form-group
+                              label(for="is_user"+worker.id) Is User?
+                              select.form-control(onChange=("isUserCheck(this.options[2].value)")
+                                name="is_user" id=('is_user'+worker.id))
+                                option(value="0" selected=worker.user) No
+                                option(value="1" selected=worker.user) Yes
+                                option(value=worker.id hidden)
+                                
+                          .col-md-6
+                            .form-group
+                              label(for="is_admin"+worker.id) Is User Admin?
+                              select.form-control(name="is_admin" disabled=(!worker.user)
+                                id=('is_admin'+worker.id))
+                                option(value="0" selected=worker.admin) No
+                                option(value="1" selected=worker.admin) Yes
                         
-                  .modal-footer
-                    button.btn.btn-secondary(type='button' data-dismiss='modal') Close
-                
-            // deleting
-              a specific worker from the system
-              This is not allow if the worker is attached to other items.
-            .modal.fade(id='delete_' + worker._id
-              tab-index='-1' role='dialog' aria-labelby='AddNewUser' 
-              aria-hidden='true')
-              
-              .modal-dialog(role='document')
-                .modal-content
-                  form(action=worker.url+'/delete', method="post")
+                        .row
+                          .col-md-12
+                            .form-group
+                              label(for="username"+worker.id) Username
+                              input.form-control(min=5
+                                type="text" placeholder='Enter Username'
+                                name='username' disabled=(!worker.user)
+                                value=worker.username
+                                id=('username'+worker.id))
+                              
+                        .row
+                          .col-md-6
+                            .form-group
+                              label(for="password"+worker.id) Password
+                              input(name="old_sha" value=worker.password type="text" hidden=true)
+                              input.form-control(min=5 onKeyUp="passwordCheck(this.id.slice(8))"
+                                type="password" placeholder="Worker's Password"
+                                name='password' disabled=(!worker.user) myid=worker.id
+                                value=worker.password id="password"+worker.id)
+                          .col-md-6
+                            .form-group
+                              label(for="confirm_password"+worker.id) Confirm Password
+                              input.form-control(onKeyUp="passwordCheck(this.id.slice(16))"
+                                type="password" myid=worker.id placeholder='Confirm Password' min=5
+                                name='confirm_password' disabled=(!worker.user)
+                                value=worker.password id="confirm_password"+worker.id)
+                          p.col-md-12.text-center.text-danger(id="password_match"+worker.id)
+
+                      .modal-footer
+                        button.btn.btn-success(type='submit') Save 
+                        button.btn.btn-danger(type='button' data-dismiss='modal') Close
+                    
+              // viewing
+              .modal.fade(id='view_' + worker._id
+                tab-index='-1' role='dialog' aria-labelby='ViewUserDetails' 
+                aria-hidden='true')
+                .modal-dialog(role='document')
+                  .modal-content
                     .modal-header
-                      h4.modal-title Delete Worker: #{worker.name}
+                      h4.modal-title Worker Details
                       button.close(type='button' data-dismiss='modal' aria-label='Close')
                         span(aria-hidden='true') &times;
                     .modal-body
-                      .form-group
-                        p #[strong Position: ] #{worker.position.name} 
-                        p #{worker.position.description}
-                        p #[strong Are you sure you wnt to delete this Worker?] 
-                        input#userid.form-control(
-                          type='hidden' name='workerid' required='true'
-                          value=worker._id)
+                      .row
+                        .col-sm-3.text-right
+                          p #[strong Name: ]
+                        .col-sm-9
+                          p #{worker.name}
+                      .row
+                        .col-3.text-right
+                          p #[strong Email: ]
+                        .col-9
+                          p #{worker.email}
+                      .row
+                        .col-3.text-right
+                          p #[strong Phone: ]
+                        .col-9
+                          p #{worker.phone}
+                      .row
+                        .col-3.text-right
+                          p #[strong Position: ]
+                        .col-9
+                          p #{worker.position}
+                      .row
+                        .col-3.text-right
+                          p #[strong Branch: ]
+                        .col-9
+                          p #{worker.branch.name}
+                      .row
+                        .col-3.text-right
+                          p #[strong Status:]
+                        .col-9
+                          p #{worker.status}
+                      
+                      if worker.user
+                        hr
+                        .row
+                          .col-3.text-right
+                            p #[strong Username: ]
+                          .col-9
+                            p #{worker.username}
+                        .row
+                          .col-3.text-right
+                            p #[strong Is User Admin?]
+                          .col-9
+                            if worker.admin
+                              p Yes
+                            else
+                              p No
+
+                      .row
+                        .col-3.text-right
+                          p #[strong Entered On: ]
+                        .col-9
+                          p #{worker.entry_date_formated}
+                          
                     .modal-footer
-                      button.btn.btn-danger(type='submit') Delete 
-                      button.btn.btn-secondary(type='button' data-dismiss='modal') Cancel
-              
+                      button.btn.btn-secondary(type='button' data-dismiss='modal') Close
+                  
+              // deleting
+                a specific worker from the system
+                This is not allow if the worker is attached to other items.
+              .modal.fade(id='delete_' + worker._id
+                tab-index='-1' role='dialog' aria-labelby='AddNewUser' 
+                aria-hidden='true')
+                
+                .modal-dialog(role='document')
+                  .modal-content
+                    form(action=worker.url+'/delete', method="post")
+                      .modal-header
+                        h4.modal-title Delete Worker: #{worker.name}
+                        button.close(type='button' data-dismiss='modal' aria-label='Close')
+                          span(aria-hidden='true') &times;
+                      .modal-body
+                        .form-group
+                          p #[strong Position: ] #{worker.position}
+                          p #[strong Are you sure you wnt to delete this Worker?] 
+                          input#userid.form-control(
+                            type='hidden' name='workerid' required='true'
+                            value=worker._id)
+                      .modal-footer
+                        button.btn.btn-danger(type='submit') Delete 
+                        button.btn.btn-secondary(type='button' data-dismiss='modal') Cancel
+    
+  script.
+
+    var isUserCheck=(id='')=>{
+      
+      let el_is_user = document.getElementById('is_user'+id);
+      let el_is_admin = document.getElementById('is_admin'+id);
+      let el_username = document.getElementById('username'+id);
+      let el_password = document.getElementById('password'+id);
+      let el_password_conf = document.getElementById('confirm_password'+id);
+      let el_save = document.getElementById('save'+id);
+
+      if(el_is_user.value === '0'){
+        el_is_admin.disabled = el_username.disabled = true;
+        el_password.disabled = el_password_conf.disabled = true;
+        
+        el_save.disabled = false;
+      }else{
+        el_is_admin.disabled = el_username.disabled = false;
+        el_password.disabled = el_password_conf.disabled = false;
+        if(el_password.value !== '' && (el_password_conf.value === el_password.value)){
+          el_save.disabled = false;
+        }else{
+          el_save.disabled = true;
+        }
+      }
+    }
+
+    var passwordCheck = (id='')=>{
+
+      let el_is_user = document.getElementById('is_user'+id);
+      let el_password = document.getElementById('password'+id);
+      let el_password_conf = document.getElementById('confirm_password'+id);
+      let el_password_match = document.getElementById('password_match'+id);
+      let el_save = document.getElementById('save'+id);
+
+      if(el_password.value !== el_password_conf.value && el_password_conf.value !== ''){
+        el_password_match.innerHTML = 'Password Mismatch!';
+        el_password_match.className = 'btn btn-danger btn-sm btn-block'
+        el_save.disabled = true;
+      }else{
+        el_password_match.innerHTML = '';
+        el_password_match.className = ''
+        if(el_password.value !== '' && el_password_conf.value !== ''){
+          el_save.disabled = false;
+        }else{
+          el_save.disabled = true;
+        }
+      }
+    }

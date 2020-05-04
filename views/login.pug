@@ -6,11 +6,11 @@ block content
   .containear
     .row
       .col-md-4
-      .col-md-4
-        .logo
-          img(src='/images/logo.png')
+      .col-md-4.card.shadow(style="margin:0")
+        .logo.card-header
+          img(src='/img/logo.png')
           h3.signin-header Login
-        form.forma-signin(action='/login' method='post')
+        form.forma-signin.card-body(action='/login' method='post')
           .form-group
             input#username.form-control(
               type="text" placeholder='Username' 

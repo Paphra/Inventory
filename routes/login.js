@@ -36,7 +36,8 @@ module.exports = (app = express()) => {
       } else {
         let username = req.body.username;
         let password = sha1(req.body.password);
-
+        //Worker.findOne({'username': username})
+        //*
         Worker.findOne({
           $and: [
             {$or: [
@@ -48,9 +49,8 @@ module.exports = (app = express()) => {
               {'status': null}
             ]}
           ]
-        }).populate('position')
-          .populate('branch')
-          .populate('role')
+        }) // */
+        .populate('branch')
           .exec((err, user) => {
             if (err) return next(err);
             if (user != null) {
@@ -60,7 +60,12 @@ module.exports = (app = express()) => {
               user.updateOne(user, (err) => {
                 if (err) return next(err);
                 req.session.user = user;
-                res.redirect('/');
+                req.session.ps = sha1(user.password);
+                let redir = req.session.return_to;
+                if(redir === undefined){
+                  redir = '/';
+                }
+                res.redirect(redir);
               });
             } else {
               res.render(

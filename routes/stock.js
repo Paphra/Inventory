@@ -12,6 +12,7 @@ var Flow = require('../models/Flow');
 var checkuser = require('../checkuser');
 
 const load=(req, res, next, stock=null)=>{
+  
   async.parallel({
     suppliers: callback => {
       Supplier.find({}, callback);
@@ -42,7 +43,7 @@ const load=(req, res, next, stock=null)=>{
         categories: results.categories,
         brands: results.brands,
         user: req.session.user,
-        return_item: stock,
+        returned: stock,
         error: req.query.error,
         success: req.query.success,
         nav: 3

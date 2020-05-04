@@ -7,10 +7,10 @@ block content
       .col-sm-8
         blockquote
           p This displays all the Stock Items in the store.
-      if isAdmin
+      if user.admin
         .col-sm-4
           button.btn.btn-success.btn-block(
-            data-toggle='modal' data-target='#add') New Stock Item
+            data-toggle='modal' data-target='#add') New Item
       
         .col-sm-12
           #add.modal.fade(
@@ -19,18 +19,18 @@ block content
             
             .modal-dialog(role='document')
               .modal-content
-                - let url = (return_item?return_item.url:'')
+                - let url = (returned?returned.url:'')
                 form(action=(url?url:'/stock'), method="post")
                   .modal-header
-                    h4.modal-title #{return_item?'Update': 'Add New'} Item
+                    h4.modal-title #{returned?'Update': 'Add New'} Item
                     button.close(type='button' data-dismiss='modal' aria-label='Close')
                       span(aria-hidden='true') &times;
                   .modal-body
                     .errors
-                        if return_item
-                          if return_item.errors
+                        if returned
+                          if returned.errors
                             ul
-                              each err in return_item.errors
+                              each err in returned.errors
                                 li= err.msg
                     .form-group
                       .row
@@ -38,7 +38,7 @@ block content
                           label(for="name") Name
                           input#name.form-control(
                             type="text" placeholder='Enter Name Of Stock Item'
-                            required='true' name='name' value=(return_item?return_item.name:''))
+                            required='true' name='name' value=(returned?returned.name:''))
                         .col-sm-6
                           label(for="brand") Brand
                           select#brand.form-control(
@@ -47,7 +47,7 @@ block content
                             option(value="") -- Brand --
                             each brand in brands
                               option(value=brand._id
-                                selected=(return_item?return_item.brand.toString()===brand._id.toString():false)
+                                selected=(returned?returned.brand.toString()===brand._id.toString():false)
                                 ) #{brand.name}
                             else
                               option(value="") No Brands
@@ -57,27 +57,27 @@ block content
                           label(for="color") Color
                           input#color.form-control(
                             type="text", placeholder='Item Color' 
-                            required='true' name='color' value=(return_item?return_item.color:''))
+                            required='true' name='color' value=(returned?returned.color:''))
                         .col-sm-6
                           label(for="serial") Serial Number
                           input#serial.form-control(
                             type="text" placeholder='Serial Number for the Item'
-                            name='serial' value=(return_item?return_item.serial:''))
+                            name='serial' value=(returned?returned.serial:''))
                     .form-group
                       label(for="size") Size
                       .row
                         .col-sm-4
                           input#width.form-control(
                             type='number' placeholder='Width' min='0'
-                            name='w' value=(return_item?return_item.size.w:''))
+                            name='w' value=(returned?returned.size.w:''))
                         .col-sm-4
                           input#length.form-control(
                             type='number' placeholder='Length' min='0'
-                            name='l' value=(return_item?return_item.size.l:''))
+                            name='l' value=(returned?returned.size.l:''))
                         .col-sm-4
                           input#height.form-control(
                             type='number' placeholder='Height' min='0'
-                            name='h' value=(return_item?return_item.size.h:''))
+                            name='h' value=(returned?returned.size.h:''))
                     
                     .form-group
                       .row
@@ -85,7 +85,7 @@ block content
                           label(for="quantity") Quantity
                           input#quantity.form-control(
                             type='number' placeholder='Quantity' min='0'
-                            required='true' name='quantity' value=(return_item?return_item.quantity:''))
+                            required='true' name='quantity' value=(returned?returned.quantity:''))
                         .col-sm-6
                           label(for="category") Category
                           select#category.form-control(
@@ -94,7 +94,7 @@ block content
                             option(value="") -- Category --
                             each cat in categories
                               option(value=cat._id
-                                selected=(return_item?return_item.category.toString()===cat._id.toString():false)
+                                selected=(returned?returned.category.toString()===cat._id.toString():false)
                                 ) #{cat.name}
                             else
                               option(value="") No Categories
@@ -107,9 +107,9 @@ block content
                             required='true')
                             option(value="") -- Status --
                             option(value="Available"
-                              selected=(return_item?return_item.status==='Available':false)) Available
+                              selected=(returned?returned.status==='Available':false)) Available
                             option(value="Sold Out"
-                              selected=(return_item?return_item.status==='Sold Out':false)) Sold Out
+                              selected=(returned?returned.status==='Sold Out':false)) Sold Out
                       
                         .col-sm-6
                           label(for="supplier") Supplier
@@ -119,7 +119,7 @@ block content
                             option(value="") -- Supplier --
                             each sup in suppliers
                               option(value=sup._id
-                                selected=(return_item?return_item.supplier.toString()===sup._id.toString():false)
+                                selected=(returned?returned.supplier.toString()===sup._id.toString():false)
                                 ) #{sup.name}
                             else
                               option(value="") No Suppliers
@@ -128,293 +128,297 @@ block content
                       label(for="unit_price") Unit Price
                       input#unit_price.form-control(
                         type='number' placeholder='Unit Price in UGX'
-                        requird='true' name='unit_price' value=(return_item?return_item.unit_price:''))
+                        requird='true' name='unit_price' value=(returned?returned.unit_price:''))
 
                     .form-group
                       label(for="description") Description
                       textarea#description.form-control(
                         name="description", rows="3" required='true' 
-                        placeholder='Enter the Description of the Stock Item') #{return_item?return_item.description:''}
+                        placeholder='Enter the Description of the Stock Item') #{returned?returned.description:''}
 
                   .modal-footer
                     button.btn.btn-success(type='submit') Save 
                     button.btn.btn-danger(type='button' data-dismiss='modal') Close
-    
-  table#table.table.table-compressed.table-bordered(
-    data-toggle="table"
-    data-search="true"
-    data-trim-on-search='false'
-    data-show-columns="true"
-    data-show-columns-search='true'
-    data-show-columns-toggle-all='true'
-    data-show-print='true'
-    data-show-export='true'
-    data-sort-class="table-active"
-    data-sortable="true"
-    data-pagination="true"
-    data-show-pagination-switch='true'
-    data-page-number="1"
-    data-show-toggle='true'
-    data-show-fullscreen='true'
-    data-page-list="[10, 25, 50, 100, 200, All]"
-    data-width='100%')
+  
+  .bg-white.shadow
+    table#table.table.table-compressed.table-bordered(
+      data-toggle="table"
+      data-search="true"
+      data-trim-on-search='false'
+      data-show-columns="true"
+      data-show-columns-search='true'
+      data-show-columns-toggle-all='true'
+      data-show-print='true'
+      data-show-export='true'
+      data-sort-class="table-active"
+      data-sortable="true"
+      data-pagination="true"
+      data-show-pagination-switch='true'
+      data-page-number="1"
+      data-show-toggle='true'
+      data-show-fullscreen='true'
+      data-page-list="[10, 25, 50, 100, 200, All]"
+      data-width='100%')
 
-    thead
-      tr
-        th(data-field='id' data-sortable='true') #
-        th(data-field='name' data-sortable='true') Name
-        th(data-field='serial') Serial
-        th(data-field='qtty' data-sortable='true') Qtty
-        th(data-field='size') Size
-        th(data-field='price' data-sortable='true') Price [UGX]
-        th(data-field='brand') Brand
-        th(data-field='color')  Color
-        th(data-field='category') Category
-        th(data-field='status') Status
-        th Actions
-    tbody
-      if items.length
-        - let count = 0
-        each item in items
-          - count += 1
-          tr
-            td #{count}
-            td #{item.name}
-            th #{item.serial}
-            th #{item.quantity}
-            td #{(item.size.w?item.size.w:'') + 'x' + (item.size.l?item.size.l:'') + 'x' + (item.size.h?item.size.h:'')}
-            th #{item.unit_price}
-            th #{item.brand.name}
-            th #{item.color}
-            th #{item.category.name}
-            th #{item.status}
-            td
-              if isAdmin
-                span.btn.btn-primary.glyphicon.glyphicon-pencil(
-                  data-target='#edit_' + item._id data-toggle='modal')
-              span.btn.btn-success.glyphicon.glyphicon-eye-open(
-                data-target='#view_' + item._id data-toggle='modal')
-              - let hf = false
-              each flow in flows
-                if flow.item._id.toString() === item._id.toString()
-                  - hf = true
-              if !hf && isAdmin
-                span.btn.btn-danger.glyphicon.glyphicon-remove(
-                  data-target='#delete_' + item._id data-toggle='modal')
-        
-            // editing
-            .modal.fade( id='edit_' + item._id
-              tab-index='-1' role='dialog' aria-labelby='EditItem' 
-              aria-hidden='true')
-              
-              .modal-dialog(role='document')
-                .modal-content
-                  form(action=item.url, method="post")
-                    .modal-header
-                      h4.modal-title Edit Item
-                      button.close(type='button' data-dismiss='modal' aria-label='Close')
-                        span(aria-hidden='true') &times;
-                    .modal-body
-                    
-                      .form-group
-                        .row
-                          .col-sm-6
-                            label(for="name") Name
-                            input#name.form-control(
-                              type="text" placeholder='Enter Name Of Stock Item'
-                              required='true' name='name' value=item.name)
-                          .col-sm-6
-                            label(for="brand") Brand
-                            select#brand.form-control(
-                              placeholder='Select a Brand' name='brand'
-                              required='true')
-                              option(value="") -- Brand --
-                              each brand in brands
-                                option(
-                                  value=brand._id 
-                                  selected=(item.brand._id.toString()===brand._id.toString())
-                                  ) #{brand.name}
-                              else
-                                option(value="") No Brands
-                      .form-group
-                        .row
-                          .col-sm-6
-                            label(for="color") Color
-                            input#color.form-control(
-                              type="text", placeholder='Item Color' 
-                              required='true' name='color' value=item.color)
-                          .col-sm-6
-                            label(for="serial") Serial Number
-                            input#serial.form-control(
-                              type="text" placeholder='Serial Number for the Item'
-                              name='serial' value=item.serial)
-                      .form-group
-                        label(for="size") Size
-                        .row
-                          .col-sm-4
-                            input#width.form-control(
-                              type='number' placeholder='Width' min='0'
-                              name='w' value=item.size.w)
-                          .col-sm-4
-                            input#length.form-control(
-                              type='number' placeholder='Length' min='0'
-                              name='l' value=item.size.l)
-                          .col-sm-4
-                            input#height.form-control(
-                              type='number' placeholder='Height' min='0'
-                              name='h' value=item.size.h)
+      thead
+        tr
+          th(data-field='id' data-sortable='true') #
+          th(data-field='name' data-sortable='true') Name
+          th(data-field='serial') Serial
+          th(data-field='qtty' data-sortable='true') Qtty
+          th(data-field='size') Size
+          th(data-field='price' data-sortable='true') Price [UGX]
+          th(data-field='brand') Brand
+          th(data-field='color')  Color
+          th(data-field='category') Category
+          th(data-field='status') Status
+          th Actions
+      tbody
+        if items.length
+          - let count = 0
+          each item in items
+            - count += 1
+            tr
+              td #{count}
+              td #{item.name}
+              th #{item.serial}
+              th #{item.quantity}
+              td #{(item.size.w?item.size.w:'') + 'x' + (item.size.l?item.size.l:'') + 'x' + (item.size.h?item.size.h:'')}
+              th #{item.unit_price}
+              th #{item.brand.name}
+              th #{item.color}
+              th #{item.category.name}
+              th #{item.status}
+              td
+                if user.admin
+                  span.btn.btn-primary.btn-sm(
+                    data-target='#edit_' + item._id data-toggle='modal')
+                    i.fas.fa-edit
+                span.btn.btn-success.btn-sm(
+                  data-target='#view_' + item._id data-toggle='modal')
+                  i.fas.fa-eye
+                - let hf = false
+                each flow in flows
+                  if flow.item._id.toString() === item._id.toString()
+                    - hf = true
+                if !hf && user.admin
+                  span.btn.btn-danger.btn-sm(
+                    data-target='#delete_' + item._id data-toggle='modal')
+                    i.fas.fa-trash
+          
+              // editing
+              .modal.fade( id='edit_' + item._id
+                tab-index='-1' role='dialog' aria-labelby='EditItem' 
+                aria-hidden='true')
+                
+                .modal-dialog(role='document')
+                  .modal-content
+                    form(action=item.url, method="post")
+                      .modal-header
+                        h4.modal-title Edit Item
+                        button.close(type='button' data-dismiss='modal' aria-label='Close')
+                          span(aria-hidden='true') &times;
+                      .modal-body
                       
-                      .form-group
-                        .row
-                          .col-sm-6
-                            label(for="quantity") Quantity
-                            input#quantity.form-control(
-                              type='number' placeholder='Quantity' min='0'
-                              required='true' name='quantity' value=item.quantity)
-                          .col-sm-6
-                            label(for="category") Category
-                            select#category.form-control(
-                              placeholder='Select a Category' name='category'
-                              required='true')
-                              option(value="") -- Category --
-                              each cat in categories
-                                option(
-                                  value=cat._id
-                                  selected=(cat._id.toString()===item.category._id.toString())
-                                  ) #{cat.name}
-                              else
-                                option(value="") No Categories
-                      .form-group
-                        .row
-                          .col-sm-6
-                            label(for="status") Status
-                            select#status.form-control(
-                              name="status" placeholder='Select a Status' 
-                              required='true')
-                              option(
-                                value="Available"
-                                selected=('Available'===item.status)) Available
-                              option(
-                                value="Sold Out"
-                                selected=('Sold Out'===item.status)) Sold Out
+                        .form-group
+                          .row
+                            .col-sm-6
+                              label(for="name") Name
+                              input#name.form-control(
+                                type="text" placeholder='Enter Name Of Stock Item'
+                                required='true' name='name' value=item.name)
+                            .col-sm-6
+                              label(for="brand") Brand
+                              select#brand.form-control(
+                                placeholder='Select a Brand' name='brand'
+                                required='true')
+                                option(value="") -- Brand --
+                                each brand in brands
+                                  option(
+                                    value=brand._id 
+                                    selected=(item.brand._id.toString()===brand._id.toString())
+                                    ) #{brand.name}
+                                else
+                                  option(value="") No Brands
+                        .form-group
+                          .row
+                            .col-sm-6
+                              label(for="color") Color
+                              input#color.form-control(
+                                type="text", placeholder='Item Color' 
+                                required='true' name='color' value=item.color)
+                            .col-sm-6
+                              label(for="serial") Serial Number
+                              input#serial.form-control(
+                                type="text" placeholder='Serial Number for the Item'
+                                name='serial' value=item.serial)
+                        .form-group
+                          label(for="size") Size
+                          .row
+                            .col-sm-4
+                              input#width.form-control(
+                                type='number' placeholder='Width' min='0'
+                                name='w' value=item.size.w)
+                            .col-sm-4
+                              input#length.form-control(
+                                type='number' placeholder='Length' min='0'
+                                name='l' value=item.size.l)
+                            .col-sm-4
+                              input#height.form-control(
+                                type='number' placeholder='Height' min='0'
+                                name='h' value=item.size.h)
                         
-                          .col-sm-6
-                            label(for="supplier") Supplier
-                            select#supplier.form-control(
-                              name="supplier" placeholder='Select a Supplier'
-                              required='true')
-                              option(value="") -- Supplier --
-                              each sup in suppliers
+                        .form-group
+                          .row
+                            .col-sm-6
+                              label(for="quantity") Quantity
+                              input#quantity.form-control(
+                                type='number' placeholder='Quantity' min='0'
+                                required='true' name='quantity' value=item.quantity)
+                            .col-sm-6
+                              label(for="category") Category
+                              select#category.form-control(
+                                placeholder='Select a Category' name='category'
+                                required='true')
+                                option(value="") -- Category --
+                                each cat in categories
+                                  option(
+                                    value=cat._id
+                                    selected=(cat._id.toString()===item.category._id.toString())
+                                    ) #{cat.name}
+                                else
+                                  option(value="") No Categories
+                        .form-group
+                          .row
+                            .col-sm-6
+                              label(for="status") Status
+                              select#status.form-control(
+                                name="status" placeholder='Select a Status' 
+                                required='true')
                                 option(
-                                  value=sup._id
-                                  selected=(sup._id.toString()===item.supplier[0]._id.toString())
-                                  ) #{sup.name}
-                              else
-                                option(value="") No Suppliers
-                      
-                      .form-group
-                        label(for="unit_price") Unit Price
-                        input#unit_price.form-control(
-                          type='number' placeholder='Unit Price in UGX'
-                          requird='true' name='unit_price' value=item.unit_price)
-                      .form-group
-                        label(for="description") Description
-                        textarea#description.form-control(
-                          name="description", rows="3" required='true' 
-                          placeholder='Enter the Description of the Stock Item') #{item.description}
+                                  value="Available"
+                                  selected=('Available'===item.status)) Available
+                                option(
+                                  value="Sold Out"
+                                  selected=('Sold Out'===item.status)) Sold Out
+                          
+                            .col-sm-6
+                              label(for="supplier") Supplier
+                              select#supplier.form-control(
+                                name="supplier" placeholder='Select a Supplier'
+                                required='true')
+                                option(value="") -- Supplier --
+                                each sup in suppliers
+                                  option(
+                                    value=sup._id
+                                    selected=(sup._id.toString() === item.supplier._id.toString())
+                                    ) #{sup.name}
+                                else
+                                  option(value="") No Suppliers
+                        
+                        .form-group
+                          label(for="unit_price") Unit Price
+                          input#unit_price.form-control(
+                            type='number' placeholder='Unit Price in UGX'
+                            requird='true' name='unit_price' value=item.unit_price)
+                        .form-group
+                          label(for="description") Description
+                          textarea#description.form-control(
+                            name="description", rows="3" required='true' 
+                            placeholder='Enter the Description of the Stock Item') #{item.description}
 
-                    .modal-footer
-                      button.btn.btn-success(type='submit') Save 
-                      button.btn.btn-danger(type='button' data-dismiss='modal') Close
+                      .modal-footer
+                        button.btn.btn-success(type='submit') Save 
+                        button.btn.btn-danger(type='button' data-dismiss='modal') Close
 
-            // view details
-            .modal.fade( id='view_' + item._id
-              tab-index='-1' role='dialog' aria-labelby='ViewItem' 
-              aria-hidden='true')
-              .modal-dialog(role='document')
-                .modal-content
-                  .modal-header
-                    h4.modal-title Item Details
-                    button.close(type='button' data-dismiss='modal' aria-label='Close')
-                      span(aria-hidden='true') &times;
-                  .modal-body
-                    .row
-                      .col-sm-4.text-right 
-                        h5 #[strong Name:]
-                      .col-sm-8
-                        h4 #{item.name}
-                    hr
-                    .row
-                      .col-sm-4.text-right #[strong Brand:]
-                      .col-sm-8
-                        p #{item.brand.name}
-                    .row
-                      .col-sm-4.text-right #[strong Color:]
-                      .col-sm-8
-                       p #{item.color}
-                    .row
-                      .col-sm-4.text-right #[strong Serial Number:]
-                      .col-sm-8
-                        p #{item.serial}
-                    hr
-                    .row
-                      .col-sm-4.text-right #[strong Width:]
-                      .col-sm-8 #{item.size.w?item.size.w:''}
-                    .row
-                      .col-sm-4.text-right #[strong Length:]
-                      .col-sm-8 #{item.size.l?item.size.l:''}
-                    .row
-                      .col-sm-4.text-right #[strong Height:]
-                      .col-sm-8 #{item.size.h?item.size.h:''}
-                    hr
-                    .row
-                      .col-sm-4.text-right #[strong Quantity:]
-                      .col-sm-8
-                        p #{item.quantity}
-                    .row
-                      .col-sm-4.text-right #[strong Category:]
-                      .col-sm-8
-                        p #{item.category.name}
-                    .row
-                      .col-sm-4.text-right #[strong Status:]
-                      .col-sm-8
-                        p #{item.status}
-                    .row
-                      .col-sm-4.text-right #[strong Supplier:]
-                      .col-sm-8
-                        p #{item.supplier.name}
-                    .row
-                      .col-sm-4.text-right #[strong Unit Price:]
-                      .col-sm-8
-                        p #{item.unit_price}
-                    hr
-                    .row
-                      .col-sm-4.text-right #[strong Description:]
-                      .col-sm-8
-                        p #{item.description}
-
-                  .modal-footer
-                    button.btn.btn-primary(type='button' data-dismiss='modal') Close
-
-            // deleting
-            .modal.fade( id='delete_' + item._id
-              tab-index='-1' role='dialog' aria-labelby='DeleteItem' 
-              aria-hidden='true')
-              .modal-dialog(role='document')
-                .modal-content
-                  form(action=item.url + '/delete', method="post")
+              // view details
+              .modal.fade( id='view_' + item._id
+                tab-index='-1' role='dialog' aria-labelby='ViewItem' 
+                aria-hidden='true')
+                .modal-dialog(role='document')
+                  .modal-content
                     .modal-header
-                      h4.modal-title Delete Item #{item.name}
+                      h4.modal-title Item Details
                       button.close(type='button' data-dismiss='modal' aria-label='Close')
                         span(aria-hidden='true') &times;
                     .modal-body
-                      input#stockid.form-control(
-                        type="hidden" name='stockid' required='true'
-                        value=item._id)
                       .row
-                        .col-sm-4.text-right #[strong Description:] 
-                        .col-sm-8 #{item.description}
+                        .col-4.text-right 
+                          h5 #[strong Name:]
+                        .col-8
+                          h4 #{item.name}
+                      hr
+                      .row
+                        .col-4.text-right #[strong Brand:]
+                        .col-8
+                          p #{item.brand.name}
+                      .row
+                        .col-4.text-right #[strong Color:]
+                        .col-8
+                          p #{item.color}
+                      .row
+                        .col-4.text-right #[strong Serial Number:]
+                        .col-8
+                          p #{item.serial}
+                      hr
+                      .row
+                        .col-4.text-right #[strong Width:]
+                        .col-8 #{item.size.w?item.size.w:''}
+                      .row
+                        .col-4.text-right #[strong Length:]
+                        .col-8 #{item.size.l?item.size.l:''}
+                      .row
+                        .col-4.text-right #[strong Height:]
+                        .col-8 #{item.size.h?item.size.h:''}
+                      hr
+                      .row
+                        .col-4.text-right #[strong Quantity:]
+                        .col-8
+                          p #{item.quantity}
+                      .row
+                        .col-4.text-right #[strong Category:]
+                        .col-8
+                          p #{item.category.name}
+                      .row
+                        .col-4.text-right #[strong Status:]
+                        .col-8
+                          p #{item.status}
+                      .row
+                        .col-4.text-right #[strong Supplier:]
+                        .col-8
+                          p #{item.supplier.name}
+                      .row
+                        .col-4.text-right #[strong Unit Price:]
+                        .col-8
+                          p #{item.unit_price}
+                      hr
+                      .row
+                        .col-4.text-right #[strong Description:]
+                        .col-8
+                          p #{item.description}
 
                     .modal-footer
-                      button.btn.btn-danger(type='submit') Delete
-                      button.btn.btn-secondary(type='button' data-dismiss='modal') Cancel
+                      button.btn.btn-primary(type='button' data-dismiss='modal') Close
+
+              // deleting
+              .modal.fade( id='delete_' + item._id
+                tab-index='-1' role='dialog' aria-labelby='DeleteItem' 
+                aria-hidden='true')
+                .modal-dialog(role='document')
+                  .modal-content
+                    form(action=item.url + '/delete', method="post")
+                      .modal-header
+                        h4.modal-title Delete Item #{item.name}
+                        button.close(type='button' data-dismiss='modal' aria-label='Close')
+                          span(aria-hidden='true') &times;
+                      .modal-body
+                        input#stockid.form-control(
+                          type="hidden" name='stockid' required='true'
+                          value=item._id)
+                        .row
+                          .col-sm-4.text-right #[strong Description:] 
+                          .col-sm-8 #{item.description}
+
+                      .modal-footer
+                        button.btn.btn-danger(type='submit') Delete
+                        button.btn.btn-secondary(type='button' data-dismiss='modal') Cancel

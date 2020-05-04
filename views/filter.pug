@@ -1,0 +1,36 @@
+form.form-inline(action='', method='get')
+	select.form-control(name="branch"
+		disabled=!user.admin)
+		option(value="") -- Branch --
+		option(value="all" selected=(branch?branch=='all':false)) All Branches
+		each br in branches
+			option(value=br.id
+				selected=(branch?branch==br.id:br.id===user.branch._id)) #{br.name}
+		else
+			option(value="") No Branches
+	input#from.form-control(type="date", name='from' value=(from?from:''))
+	label.fas.fa-chevron-right(for="to") 
+	input#to.form-control(type="date", name='to' value=(to?to:''))
+	button#month.btn.btn-primary.btn-sm(type="submit") Filter
+
+script.
+	var date = new Date();
+	var to_el = document.getElementById('to');
+	var from_el = document.getElementById('from');
+	var year = date.getFullYear();
+	var month = (date.getMonth() + 1).toString().padStart(2, '0');
+	var b_month = date.getMonth().toString().padStart(2, '0');
+	var day = date.getDate().toString().padStart(2, '0');
+
+	var c_date = year + '-' + month + '-' + day;
+	var b_date = year + '-' + b_month + '-' + day;
+
+	to_el.max = c_date;
+	from_el.max = c_date;
+	
+	if(to_el.value == ''){
+		to_el.value = c_date;
+	}
+	if(from_el.value == ''){
+		from_el.value = b_date;
+	}
