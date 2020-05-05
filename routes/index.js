@@ -42,23 +42,27 @@ let generate =(params)=>{
   let start = 0;
   let end = 0;
   let start_day = params.date1.getDate();
-  let start_month = params.date1.getMonth();
+  let start_month = params.date1.getMonth() + 1;
   let start_year = params.date1.getFullYear();
   if (params.type=='days'){
     start = start_day;
     end = start + params.counter;
   }else if(params.type== 'months'){
-    start = start_month;
+    start = start_month - 1;
     end = start + params.counter;
   }else{
     start = start_year;
-    end = start + params.counter + 1;
+    end = start + params.counter;
   }
-  let month_max = months[start_month].max;
+  let month_max = months[start_month - 1].max;
+  let month = start_month;
+  let year = start_year;
+
   let ext_i = start;
   
   for(item of items){
     ext_i = start;
+    month = start_month;
     let dataset = {
       label: "",
       data: [],
@@ -67,34 +71,48 @@ let generate =(params)=>{
       borderWidth: 2
     };
     
-    for(let i = start; i < end; i++){
+    for(let i = start; i <= end; i++){
       let total = 0;
       if(params.type=='days'){
         if(ext_i > month_max){
           ext_i = 1;
+          month ++;
+          if(month > 11){
+            month = 0;
+          }
         }
       }else if(params.type=='months'){
         if(ext_i > 11){
           ext_i = 0;
+          year ++;
         }
       }
+
       for(flow of params.flows){
-        let variable = flow.entry_date.getDate();
-        if(params.type == 'months'){
-          variable = flow.entry_date.getMonth();
+        let check = false;
+        
+        let this_day = flow.entry_date.getDate();
+        let this_month = flow.entry_date.getMonth() + 1;
+        let this_year = flow.entry_date.getFullYear();
+
+        if(params.type=='days'){
+          check = (this_day === ext_i && this_month===month && this_year === year);
+        }else if(params.type=='months'){
+          check = ((this_month -1) === ext_i && year === this_year);
         }else if(params.type == "years"){
-          variable = flow.entry_date.getFullYear();
+          check = (this_year == ext_i);
         }
 
-        if(flow.item == item && variable == ext_i){
+        if(flow.item == item && check){
+
           total += flow.quantity;
         }
       }
       ext_i ++;
       dataset.data.push(total);
     }
-    let bg = 'rgba(' + randInt(0, 255) + ',' + randInt(0, 255) + ',' + randInt(0, 255) + ',' + randInt(0, 1);
-    let bc = 'rgba(' + randInt(0, 255) + ',' + randInt(0, 255) + ',' + randInt(0, 255) + ',' + 1;
+    let bg = 'rgba(' + randInt(0, 255) + ',' + randInt(0, 255) + ',' + randInt(0, 255) + ',' + randInt(0, 0.7) +')';
+    let bc = 'rgba(' + randInt(0, 255) + ',' + randInt(0, 255) + ',' + randInt(0, 255) + ',' + 1 +')';
     dataset.label = item.name;
     dataset.backgroundColor = [bg,];
     dataset.borderColor = [bc,];
@@ -103,7 +121,7 @@ let generate =(params)=>{
   
   // Labels
   let dif_ext = start;
-  for(let i = start; i < end; i++){
+  for(let i = start; i <= end; i++){
     if(params.type=='days'){
       if(dif_ext > month_max){
         dif_ext = 1;
@@ -147,15 +165,34 @@ module.exports = (app=express())=>{
     }
 
     let date = new Date();
+    let c_month = date.getMonth() + 1;
+    let c_day = date.getDate();
+    let c_year = date.getFullYear();
+
+    let month = months[c_month - 1];
+    
+    let p_day = c_day + 1;
+    let p_month = c_month - 1;
+    let p_year = c_year;
+
+    if(c_day == month.max && c_month > 1){
+      p_month = c_month - 1;
+      p_day = months[p_month - 1].max
+    }else if(c_day == month.max && c_month <= 1){
+      p_month = 12;
+      p_year = c_year - 1;
+      p_day = months[p_month - 1].max;
+    }
+
     if (from === undefined){
-      let l_month = (date.getMonth()).toString().padStart(2, '0');
-      let l_day = (date.getDate()).toString().padStart(2, '0');
-      from = date.getFullYear() + '-' + l_month + '-' + l_day;
+      let l_month = p_month.toString().padStart(2, '0');
+      let l_day = (p_day).toString().padStart(2, '0');
+      from = p_year + '-' + l_month + '-' + l_day;
     }
     if(to === undefined ){
-      let c_month = (date.getMonth()+1).toString().padStart(2, '0');
-      let c_day = (date.getDate()).toString().padStart(2, '0');
-      to = date.getFullYear() + '-' + c_month + '-' + c_day;
+      let n_month = c_month.toString().padStart(2, '0');
+      let n_day = c_day.toString().padStart(2, '0');
+      to = c_year + '-' + n_month + '-' + n_day;
     }
     
     filter.entry_date = {
@@ -166,7 +203,7 @@ module.exports = (app=express())=>{
     async.parallel({
       flows: callback=>{
         Flow.find(filter)
-          .sort('entry_date')
+          .sort('-entry_date')
           .populate('branch')
           .populate('entered_by')
           .populate('worker')
@@ -230,8 +267,7 @@ module.exports = (app=express())=>{
       }
 
       data.data.labels = labels;
-      data.data.datasets = datasets;
-      
+      data.data.datasets = datasets;      
       res.render(
         'index',
         {

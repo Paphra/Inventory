@@ -50,7 +50,6 @@ const load =(req, res, next, flow=null)=>{
       b_filter = {'name': user.branch.name};
   }else{
     delete w_filter.branch;
-    console.log(w_filter);
   }
   async.parallel({
     workers: callback=>{
@@ -83,14 +82,6 @@ const load =(req, res, next, flow=null)=>{
   }, (err, results) => {
     if (err) return next(err);
     
-    let count = results.flows.length
-    if (from === undefined && count !== 0){
-      let date = results.flows[count-1].entry_date;
-      let l_month = (date.getMonth()+1).toString().padStart(2, '0');
-      let l_day = (date.getDate()).toString().padStart(2, '0');
-      from = date.getFullYear() + '-' + l_month + '-' + l_day;
-      console.log(from);
-    }
     res.render(
       'stock/flows',
       {
