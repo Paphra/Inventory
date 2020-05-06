@@ -46,7 +46,8 @@ const load=(req, res, next, stock=null)=>{
         returned: stock,
         error: req.query.error,
         success: req.query.success,
-        nav: 3
+        nav: 3,
+        atstock: true,
       }
 
       res.render(
@@ -72,6 +73,61 @@ const redirect=(err, res)=>{
 
 module.exports = (app = express())=>{
   
+  // importing
+  app.post('/stock/import', [
+    body('data', 'Data Must Not Be Empty').trim().isLength({min:10}),
+    (req, res, next)=>{
+      let errors = validationResult(req);
+      if(!errors.isEmpty()){
+        req.body.errors = errors.array();
+        req.body.isImport = true;
+        load(req, res, next, req.body);
+      }else{
+        let db_fields = [
+          'name', 'brand', 'color', 'size', 'serial', 'quantity', 
+          'description', 'category', 'status', 'unit_price',
+          'supplier', 'modification'
+        ]
+        let raw_data = req.body.data;
+        let rows_str = raw_data.split('\r\n')
+        let headers_str = rows_str[0];
+        let data_str = rows_str.slice(1);
+        let headers = headers_str.split(',');
+        let data = [];
+        for(data_row of data_str){
+          var row_items = data_row.split(',');
+          let row = {};
+          for(let i=0; i<headers.length; i++){
+            row[headers[i]] = row_items[i];
+          }
+          data.push(row);
+        }
+        async.parallel({
+          suppliers: callback => {
+            Supplier.findOne({'name': ''}, callback);
+          },
+          categories: callback => {
+            Category.findOne({'name':''}, callback);
+          },
+          brands: callback => {
+            Brand.findOne({'name':''}, callback);
+          },
+          items: callback => {
+            Stock.findOne({})
+              .populate('category')
+              .populate('brand')
+              .populate('supplier')
+              .exec(callback);
+          }
+        }, (err, results)=>{
+          
+          console.log(data);
+        });
+
+      }
+    }
+  ]);
+
   // creating an item
   app.post('/stock', checkuser, [
     body('name', 'Item Name MUST not be empty').trim().isLength({ min: 1 }),

@@ -1,0 +1,60 @@
+button#import.btn.btn-primary.btn-block.btn-sm(
+	data-toggle='modal' data-target='#import-data') Import 
+	i.fas.fa-upload 
+
+#import-data.modal.fade(
+  tab-index='-1' role='dialog' aria-labelby='import' 
+  aria-hidden='true')
+
+	.modal-dialog.modal-lg(role='document')
+		.modal-content.p-3
+			form(action=(atflows?'/flows/import':'/stock/import'), method="post")
+				.modal-header
+					h4.modal-title Import #{atflows?'Flows': 'Stock Item'} From Excel Document
+					button.close(type='button' data-dismiss='modal' aria-label='Close')
+						span(aria-hidden='true') &times;
+				.model-body
+					.errors
+						if returned && returned.isImport
+							if returned.errors
+								ul
+									each err in returned.errors
+										li= err.msg
+										
+					.form-group
+						input#file.form-control(onChange="fileSelect()"
+							type="file" name="file" accept=".xlsx,.xls,.csv,.ods")
+						textarea#data.form-control(
+							name="data" placeholder="Data Preview") #{returned?(returned.isImport?returned.data:''):''}
+					#drop-zone.drop-zone
+
+					#preview.preview
+
+				.model-footer.float-right
+					button.btn.btn-primary.btn-sm(
+						type="submit") Upload 
+						i.fas.fa-upload 
+					button.btn.btn-sm.btn-danger(
+						data-dismiss='modal' type='button') Close
+
+script.
+
+	function fileSelect(){
+		var el_file = document.getElementById('file');
+		var el_preview = document.getElementById('preview');
+		var el_data = document.getElementById('data');
+
+		var files = el_file.files;
+		var file = files[0];
+
+		var reader = new FileReader();
+		reader.onloadend = function(evt) {
+			if (evt.target.readyState == FileReader.DONE) {
+				var data = evt.target.result;
+				el_data.value = data;
+				el_data.rows = 10;
+			}
+		};
+		reader.readAsText(file);
+	}
+	

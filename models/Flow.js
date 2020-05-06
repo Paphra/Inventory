@@ -13,7 +13,7 @@ var FlowSchema = new Schema({
   amount: {type: Number, default: 0},
   branch: {type: Schema.Types.ObjectId, ref: 'Branch', required: true},
   entered_by: { type: Schema.Types.ObjectId, ref: 'Worker', required: true },
-  handled_by: {type: Schema.Types.ObjectId, ref: 'Worker', required: true},
+  handled_by: {type: String, required: true}, // the one who took or returned the Stock Item
   entry_date: {type: Date, required: true, default: Date.now }
 });
 

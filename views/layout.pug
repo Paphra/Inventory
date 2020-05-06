@@ -101,9 +101,13 @@ html(lang='en')
                 .alert.alert-warning.alert-dismissible.fade.show
                   a.close(href='#top' data-dismiss='alert' aria-label='Close') &times;
                   strong Warning!
-                  p There were errors in the Saving Operation.
-                  p Please, click 
-                    a.btn.btn-danger(href='#top' data-toggle='modal' data-target='#add') HERE
+                  i There were errors in the Saving Operation.
+                  br
+                  p Please, click
+                    if returned.isImport
+                      a.btn.btn-danger.btn-sm(href='#top' data-toggle='modal' data-target='#import-data') HERE
+                    else
+                      a.btn.btn-danger.btn-sm(href='#top' data-toggle='modal' data-target='#add') HERE
                     |  to see them.
               else if error
                 .alert.alert-danger.alert-dismissible.fade.show

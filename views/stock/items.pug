@@ -6,17 +6,23 @@ block content
     .row
       .col-sm-8
         blockquote
-          p This displays all the Stock Items in the store.
+          i This displays all the Stock Items in the store.
       if user.admin
         .col-sm-4
-          button.btn.btn-success.btn-block(
+          button.btn.btn-success.btn-block.btn-sm(
             data-toggle='modal' data-target='#add') New Item
-      
+          input(type='hidden')
+          
+          include ../import
+
         .col-sm-12
           #add.modal.fade(
             tab-index='-1' role='dialog' aria-labelby='AddNewItem' 
             aria-hidden='true')
-            
+          
+            if returned && returned.isImport
+              - returned = false
+          
             .modal-dialog(role='document')
               .modal-content
                 - let url = (returned?returned.url:'')
@@ -140,6 +146,7 @@ block content
                     button.btn.btn-success(type='submit') Save 
                     button.btn.btn-danger(type='button' data-dismiss='modal') Close
   
+  hr
   .bg-white.shadow
     table#table.table.table-compressed.table-bordered(
       data-toggle="table"

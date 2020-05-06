@@ -20,6 +20,13 @@ body {
   padding-top: 5rem;
 }
 
+#preview {
+  margin: 5px 0;
+  max-height: 300px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
 a {
   color: #00B7FF;
 }

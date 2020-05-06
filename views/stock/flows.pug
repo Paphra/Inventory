@@ -8,17 +8,19 @@ block content
       .col-sm-8
         include ../filter
       .col-sm-4
-        button.btn.btn-success.btn-block(
+        button.btn.btn-success.btn-block.btn-sm(
           data-toggle='modal' data-target='#add') New Flow
         input#items(type='hidden' value=items)
-        input#workers(type='hidden' value=workers)
-        input#branches(type='hidden' value=branches)
+      
+        include ../import
 
       .col-sm-12
         #add.modal.fade(
           tab-index='-1' role='dialog' aria-labelby='AddNewFlow' 
           aria-hidden='true')
-          
+          if returned && returned.isImport
+            - returned = false
+
           .modal-dialog(role='document')
             .modal-content
               - let url = (returned?returned.url:'')
@@ -50,17 +52,11 @@ block content
                   .form-group
                     .row
                       .col-sm-6
-                        label(for="handled_by") Handled By
-                        select#handled_by.form-control(
-                          placeholder='Select a Worker' name='handled_by'
-                          required='true' onChange="setBranch()")
-                          option(value="") -- Worker --
-                          each worker in workers
-                            option(value=worker._id
-                              selected=(returned?returned.handled_by.toString()===worker._id.toString():false)
-                              ) #{worker.name}
-                          else
-                            option(value="") No Workers
+                        label(for="handled_by") Taken/Returned By 
+                        input#handled_by.form-control(name="handled_by"
+                          type="text" placeholder="Full Name" required=true
+                          value=(returned?returned.handled_by:''))
+
                       .col-sm-6
                         label(for="branch") Branch
                         select#branch.form-control(
@@ -130,9 +126,17 @@ block content
                     
                       .col-sm-6
                         label(for="entry_date") Entry Date
-                        input#entry_date.form-control(placeholder='Enter Entry Date'
-                          type="date" name='entry_date' required=true 
-                          value=(returned?returned.entry_date:false))
+                        if returned
+                          - let dt = returned.entry_date
+                          - let y = dt.getFullYear()
+                          - let m = (dt.getMonth()+1+'').padStart(2, '0')
+                          - let d = (dt.getDate()+'').padStart(2,'0')
+                          input#entry_date.form-control(
+                            type="date" name='entry_date' required=true 
+                            value=(y+ '-' + m + '-' + d))
+                        else
+                          input#entry_date.form-control(
+                            type="date" name='entry_date' required=true)
                   
                   .form-group
                     label(for="details") Details
@@ -143,6 +147,7 @@ block content
                 .modal-footer
                   button.btn.btn-success(type='submit') Save 
                   button.btn.btn-danger(type='button' data-dismiss='modal') Close
+    
     hr
   
   .bg-white.shadow
@@ -169,7 +174,7 @@ block content
         tr
           th(data-field='id' data-sortable='true') Date
           th(data-field='item' data-sortable='true') Item
-          th(data-field='handled_by') Handled By
+          th(data-field='handled_by') Taken/Returned By
           th(data-field='qtty' data-sortable='true') Qtty
           th(data-field='amount' data-sortable='true') Amount
           th(data-field='details') Details
@@ -182,7 +187,7 @@ block content
             tr
               td #{flow.entry_date_formated}
               td #{flow.item.name}
-              th #{flow.handled_by.name}
+              th #{flow.handled_by}
               th #{flow.quantity}
               th #{flow.amount}
               th #{flow.details}
@@ -230,17 +235,11 @@ block content
                         .form-group
                           .row
                             .col-sm-6
-                              label(for="handled_by") Handled By
-                              select#handled_by.form-control(
-                                placeholder='Select a Worker' name='handled_by'
-                                required='true')
-                                option(value="") -- Worker --
-                                each worker in workers
-                                  option(value=worker._id
-                                    selected=(flow.handled_by._id.toString()===worker._id.toString())
-                                    ) #{worker.name}
-                                else
-                                  option(value="") No Workers
+                              label(for="handled_by") Taken/Returned By 
+                              input#handled_by.form-control(name="handled_by"
+                                type="text" placeholder="Full Name" required=true
+                                value=flow.handled_by)
+                              
                             .col-sm-6
                               label(for="branch") Branch
                               select#branch.form-control(
@@ -253,6 +252,7 @@ block content
                                     ) #{branch.name}
                                 else
                                   option(value="") No Branches
+
                         input#entered_by(
                           type='hidden' value=user._id required=true name='entered_by')
                       
@@ -375,8 +375,8 @@ block content
                       hr
                       h4.text-center #[strong Flow Details]
                       .row
-                        .col-3.text-right #[strong Handled By:]
-                        .col-3 #{flow.handled_by.name}
+                        .col-3.text-right #[strong Taken/Returned By:]
+                        .col-3 #{flow.handled_by}
                         .col-3.text-right #[strong Entered By:]
                         .col-3 #{flow.entered_by.name}
                       .row
@@ -425,8 +425,6 @@ block content
 block scripts
   script.
     var items = JSON.parse(document.getElementById('items').value);
-    var workers = JSON.parse(document.getElementById('workers').value);
-    var branches = JSON.parse(document.getElementById('branches').value);
 
     function setQuantity(id=''){
       var el_item = document.getElementById('item'+id);
@@ -436,25 +434,6 @@ block scripts
       for(item of items){
         if(item._id.toString() == selected_item_id){
           el_quantity.max = item.quantity;
-          
-        }
-      }
-    }
-
-    function setBranch(id=''){
-      var el_handled_by = document.getElementById('handled_by'+id);
-      var el_branch = document.getElementById('branch'+id);
-      var selected_worker_id = el_handled_by.value;
-      
-      for(worker of workers){
-        if(worker._id.toString() == selected_worker_id){
-          var ind = 1;
-          for(branch of branches){
-            if(branch._id.toString()==worker.branch._id.toString()){
-              el_branch.selectedIndex = ind;
-            }
-            ind ++;
-          }
           
         }
       }
