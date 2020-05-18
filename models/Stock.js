@@ -5,16 +5,9 @@ var Schema = mongoose.Schema
 
 var StockSchema = new Schema({
   name:     { type: String, required: true, min: 3 },
-  brand:    { type: Schema.Types.ObjectId, ref: 'Brand', required: true },
-  color:    { type: String },
-  size:     { w: { type: Number }, l: { type: Number }, h: { type: Number } },
-  serial:   { type: String },
-  quantity: { type: Number, default: 0 },
-  description: { type: String, required: true },
+  description: { type: String },
   category: { type: Schema.Types.ObjectId, ref: 'Category', required: true },
-  status:   { type: String, required: true, enum: ['Available', 'Sold Out'], default: 'Available' },
-  unit_price:{ type: Number, required: true },
-  supplier: { type: Schema.Types.ObjectId, ref: 'Supplier', required: true },
+  supplier: { type: String },
   modification: {type: Date, required: true, default: Date.now }
 });
 

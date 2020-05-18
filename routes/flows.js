@@ -10,7 +10,7 @@ var checkuser = require('../checkuser');
 var Branch = require('../models/Branch');
 var Brand = require('../models/Brand');
 var Category = require('../models/Category');
-var Supplier = require('../models/Supplier');
+var Quantity = require( '../models/Quantity' )
 
 const load =(req, res, next, flow=null)=>{
   let user = req.session.user;
@@ -64,12 +64,10 @@ const load =(req, res, next, flow=null)=>{
         .exec(callback);
     },
     brands: callback => { Brand.find({}, callback); },
-    suppliers: callback => { Supplier.find({}, callback); },
     categories: callback => { Category.find({}, callback); },
     items: callback => {
-      Stock.find({'status': 'Available'})
+      Stock.find({})
         .populate('category')
-        .populate('supplier')
         .exec(callback);
     },
   }, (err, results) => {
@@ -86,7 +84,6 @@ const load =(req, res, next, flow=null)=>{
         workers: results.workers,
         branches: results.branches,
         categories: results.categories,
-        suppliers: results.suppliers,
         brands: results.brands,
         items: results.items,
         user: req.session.user,
@@ -166,10 +163,8 @@ module.exports = (app = express())=>{
     body('handled_by', 'Taken/Returned By Must not Be Empty').trim().isLength({ min: 1 }),
     body('branch', 'Branch Must not Be Empty').trim().isLength({ min: 1 }),
     body('quantity', 'Quantity Must not Be Empty').trim().isLength({ min: 1 }),
-    body('quality', 'Quality Must not Be Empty').trim().isLength({ min: 1 }),
-    body('entry_date', 'Entry Date Must not Be Empty').trim().isLength({ min: 1 }),
-    body('details', 'Details Must not Be Empty').trim().isLength({ min: 1 }),
-
+    body( 'entry_date', 'Entry Date Must not Be Empty' ).trim().isLength( { min: 1 } ),
+    
     check('*').escape(),
     check('entry_date').toDate(),
 
@@ -180,21 +175,35 @@ module.exports = (app = express())=>{
         load(req, res, next, req.body);
       }else{
         let flow = new Flow(req.body);
-        flow.save((err, flw)=>{
+        flow.save((err, saved)=>{
           if(err) return next(err);
-          Stock.findById(flw.item)
-            .exec((err2, item)=>{
-              if(err2) return next(err2);
-              if (flw.action === 'Purchased' || flw.action === 'Return In') {
-                item.quantity += flw.quantity;
-              }else if(flw.action!=='Used'){
-                item.quantity -= flw.quantity;
+          Quantity.findOne( {
+            'item': saved.item,
+            'branch': saved.branch
+          }, ( err, qtty ) => {
+              if ( err ) return next( err )
+              
+              if ( qtty ) {
+                if (saved.action === 'Purchased' || saved.action === 'Return In'|| saved.action === 'Received'
+                  || saved.action === 'Transfered In') {
+                  qtty.value += saved.quantity;
+                }else{
+                  qtty.value -= saved.quantity;
+                }
+                qtty.updateOne(qtty, (err)=>{
+                  redirect(err, res);
+                });
+              } else {
+                qtty = new Quantity( {
+                  item: saved.item,
+                  branch: saved.branch,
+                  value: saved.quantity
+                } )
+                qtty.save( ( err ) => {
+                  redirect( err, res )
+                })
               }
-              item.updateOne(item, (err3)=>{
-                redirect(err3, res);
-              });    
-            });
-          
+          } )
         });
       }
     }
@@ -206,47 +215,55 @@ module.exports = (app = express())=>{
     body('handled_by', 'Taken/Returned By Must not Be Empty').trim().isLength({ min: 1 }),
     body('branch', 'Branch Must not Be Empty').trim().isLength({ min: 1 }),
     body('quantity', 'Quantity Must not Be Empty').trim().isLength({ min: 1 }),
-    body('quality', 'Quality Must not Be Empty').trim().isLength({ min: 1 }),
-    body('entry_date', 'Entry Date Must not Be Empty').trim().isLength({ min: 1 }),
-    body('details', 'Details Must not Be Empty').trim().isLength({ min: 1 }),
-
+    body( 'entry_date', 'Entry Date Must not Be Empty' ).trim().isLength( { min: 1 } ),
+    
     check('*').escape(),
     check('entry_date').toDate(),
 
     (req, res, next) => {
       req.body._id = req.params.id;
       Flow.findById(req.params.id)
-        .exec((err, fw) => {
+        .exec((err, flow) => {
           if (err) return next(err);
           let errors = validationResult(req);
           if (!errors.isEmpty()) {
             req.body.errors = errors.array();
-            req.body.url = fw.url;
+            req.body.url = flow.url;
             load(req, res, next, req.body);
           } else {
-            
-            let flow = new Flow(req.body);
-            let sub = false;
-            let excess = flow.quantity - fw.quantity;
-            Stock.findById(flow.item)
-              .exec((err, item)=>{
-                if (flow.action === 'Purchased' || flow.action === 'Return In') {
-                  item.quantity += excess;
-                } else if (flow.action !== 'Used') {
-                  item.quantity -= excess;
+            let flowUpdate = new Flow(req.body);
+            let excess = flowUpdate.quantity - flow.quantity;
+            Quantity.findOne( {
+                'item': flow.item,
+                'branch': flow.branch
+              }, ( err, qtty ) => {
+                if ( err ) return next( err )
+                if ( qtty ) {
+                  if ( flowUpdate.action === 'Purchased' || flowUpdate.action === 'Return In'
+                    || flowUpdate.action === 'Received' || flowUpdate.action === 'Transfered In') {
+                    qtty.value += excess;  
+                  } else {
+                    qtty.value -= excess
+                  }
                 }
-                if(item.quantity > 0){
-                  item.status = 'Available';
-                }else{
-                  item.status = 'Sold Out';
-                }
-                item.updateOne(item, (err3)=>{
-                  if(err3) return next(err3);
-                  fw.updateOne(flow, (err2) => {
-                    redirect(err2, res);
-                  });
-                });
-              });
+                flow.updateOne( flowUpdate, ( err ) => {
+                  if ( err ) return next( err )
+                    if ( qtty ) {
+                      qtty.updateOne(qtty, (err)=>{
+                        redirect(err, res);
+                      });
+                    } else {
+                      let qtty = new Quantity( {
+                        item: flowUpdate.item,
+                        branch: flowUpdate.branch,
+                        value: (- flowUpdate.quantity)
+                      } )
+                      qtty.save( ( err ) => {
+                        redirect(err, res)
+                      })
+                    }  
+                  })    
+              } )
           }
       });
     }

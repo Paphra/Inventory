@@ -7,27 +7,30 @@ var url = require('url');
 
 var Branch = require('../models/Branch');
 var Worker = require('../models/Worker');
-var Supplier = require('../models/Supplier');
 var Flow = require('../models/Flow');
 var Stock = require('../models/Stock');
+var Quantity = require( '../models/Quantity' )
 
-const load_suppliers =(req, res, next, supplier=null)=>{
+const load_quantities =(req, res, next, quantity=null)=>{
   async.parallel({
     items: callback => {
       Stock.find({}, callback);
     },
-    suppliers: callback => {
-      Supplier.find({}, callback);
-    },
+    quantities: callback => {
+      Quantity.find( {} )
+        .populate( 'item' )
+        .populate( 'branch' )
+        .exec(callback)
+    },    
   }, (err, results) => {
     if (err) return next(err);
     res.render(
-      'operations/suppliers',
+      'operations/quantities',
       {
-        title: 'Stock Suppliers | Inventory',
-        suppliers: results.suppliers,
+        title: "Stock Quantities | Inventory",
         items: results.items,
-        returned: supplier,
+        returned: quantity,
+        quantities: results.quantities,
         success: req.query.success,
         error: req.query.error,
         user: req.session.user,
@@ -320,76 +323,14 @@ module.exports = (app=express())=>{
    */
 
   /**
-   * SUPPLIERS
+   * Quantities
    */
-  // create supplier
-  app.post('/suppliers', checkuser, [
-    body('name', 'Supplier Name  Must not be empty.').trim().isLength({ min: 1 }),
-    body('email', 'Supplier Email  Must not be empty.').trim().isLength({ min: 1 }),
-    body('phone', 'Supplier Phone  Must not be empty.').trim().isLength({ min: 1 }),
-    body('address', 'Supplier Address  Must not be empty.').trim().isLength({ min: 1 }),
-    check('*').escape(),
-    (req, res, next) => {
-      let errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        req.body.errors = errors.array();
-        load_suppliers(req, res, next, req.body);
-      }
-      let supplier = new Supplier({
-        name: req.body.name,
-        email: req.body.email,
-        phone: req.body.phone,
-        address: req.body.address
-      })
-      supplier.save((err) => {
-        redirect(err, res, '/suppliers');
-      });
-    }
-  ]);
-  // delete supplier
-  app.post('/suppliers/:id/delete', checkuser, (req, res) => {
-    Supplier.findByIdAndRemove(req.body.supplierid, (err) => {
-      redirect(err, res, '/suppliers');
-    });
+  // get all the quantities in the system
+  app.get('/quantities', checkuser, (req, res, next) => {
+    load_quantities(req, res, next);
   });
-  // update supplier
-  app.post('/suppliers/:id', checkuser, [
-    body('name', 'Supplier Name  Must not be empty.').trim().isLength({ min: 1 }),
-    body('email', 'Supplier Email  Must not be empty.').trim().isLength({ min: 1 }),
-    body('phone', 'Supplier Phone  Must not be empty.').trim().isLength({ min: 1 }),
-    body('address', 'Supplier Address  Must not be empty.').trim().isLength({ min: 1 }),
-    check('*').escape(),
-    (req, res, next) => {
-      let errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        req.body.errors = errors.array();
-        req.body.url = '/suppliers/' + req.params.id;
-        load_suppliers(req, res, next, req.body);
-      }
-      let supplier = new Supplier({
-        name: req.body.name,
-        email: req.body.email,
-        phone: req.body.phone,
-        address: req.body.address,
-        _id: req.params.id
-      });
-      Supplier.findByIdAndUpdate(
-        req.params.id,
-        supplier,
-        (err) => {
-          redirect(err, res, '/suppliers');
-        }
-      );
-    }
-  ]);
-  // get all suppliers
-  app.get('/suppliers', checkuser, (req, res, next)=>{
-    load_suppliers(req, res, next);
-  });
-  /**
-   * END SUPPLIERS
-   */
-
+  
+  
   // get all operations
   app.get('/operations', checkuser, (req, res, next)=>{
     res.render(

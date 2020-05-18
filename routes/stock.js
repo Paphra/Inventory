@@ -5,32 +5,29 @@ var url = require('url');
 
 var Stock = require('../models/Stock');
 var Category = require('../models/Category');
-var Supplier = require('../models/Supplier');
 var Brand = require('../models/Brand');
 var Flow = require('../models/Flow');
+var Quantity = require('../models/Quantity');
 
 var checkuser = require('../checkuser');
 
 const load=(req, res, next, stock=null)=>{
-  
   async.parallel({
-    suppliers: callback => {
-      Supplier.find({}, callback);
-    },
     flows: callback => {
-      Flow.find({}, callback);
+      Flow.find( {})
+        .populate( 'item' )
+        .populate('brand')
+        .exec( callback )
+    },
+    quantities: callback => {
+      Quantity.find( {}, callback );
     },
     categories: callback => {
       Category.find({}, callback);
     },
-    brands: callback => {
-      Brand.find({}, callback);
-    },
     items: callback => {
       Stock.find({})
         .populate('category')
-        .populate('brand')
-        .populate('supplier')
         .exec(callback);
     }
   }, (err, results) => {
@@ -38,8 +35,8 @@ const load=(req, res, next, stock=null)=>{
       let attributes = {
         title: 'Stock Items | Inventory',
         items: results.items,
-        suppliers: results.suppliers,
         flows: results.flows,
+        quantities: results.quantities,
         categories: results.categories,
         brands: results.brands,
         user: req.session.user,
@@ -103,9 +100,6 @@ module.exports = (app = express())=>{
           data.push(row);
         }
         async.parallel({
-          suppliers: callback => {
-            Supplier.findOne({'name': ''}, callback);
-          },
           categories: callback => {
             Category.findOne({'name':''}, callback);
           },
@@ -131,43 +125,19 @@ module.exports = (app = express())=>{
   // creating an item
   app.post('/stock', checkuser, [
     body('name', 'Item Name MUST not be empty').trim().isLength({ min: 1 }),
-    body('brand', 'Item Brand MUST not be empty').trim().isLength({ min: 1 }),
-    body('color', 'Item Color MUST not be empty').trim().isLength({ min: 1 }),
-    body('quantity', 'Item Qunatity MUST not be empty').trim().isLength({ min: 1 }),
     body('category', 'Item Category MUST not be empty').trim().isLength({ min: 1 }),
-    body('status', 'Item Status MUST not be empty').trim().isLength({ min: 1 }),
-    body('unit_price', 'Item Unit Price MUST not be empty').trim().isLength({ min: 1 }),
     body('supplier', 'Item Supplier MUST not be empty').trim().isLength({ min: 1 }),
-    body('description', 'Item Description MUST not be empty').trim().isLength({ min: 1 }),
     
     check('*').escape(),
     
     (req, res, next)=>{
       // get the errors
       let errors = validationResult(req);
-      let size = {
-        w: req.body.w,
-        h: req.body.h,
-        l: req.body.l
-      }
       if(!errors.isEmpty()){
-        req.body.size = size;
         req.body.errors = errors.array();
         load(req, res, next, req.body);
       }else{
-        let stock = new Stock({
-          name: req.body.name,
-          brand: req.body.brand,
-          color: req.body.color,
-          size: size,
-          serial: req.body.serial,
-          quantity: req.body.quantity,
-          description: req.body.description,
-          category: req.body.category,
-          status: req.body.status,
-          unit_price: req.body.unit_price,
-          supplier: req.body.supplier,
-        });
+        let stock = new Stock(req.body);
         stock.save((err, theStock) => {
           redirect(err, res);
         })
@@ -178,46 +148,23 @@ module.exports = (app = express())=>{
   // updating an item
   app.post('/stock/:id', checkuser, [
     body('name', 'Item Name MUST not be empty').trim().isLength({ min: 1 }),
-    body('brand', 'Item Brand MUST not be empty').trim().isLength({ min: 1 }),
-    body('color', 'Item Color MUST not be empty').trim().isLength({ min: 1 }),
-    body('quantity', 'Item Qunatity MUST not be empty').trim().isLength({ min: 1 }),
     body('category', 'Item Category MUST not be empty').trim().isLength({ min: 1 }),
-    body('status', 'Item Status MUST not be empty').trim().isLength({ min: 1 }),
-    body('unit_price', 'Item Unit Price MUST not be empty').trim().isLength({ min: 1 }),
     body('supplier', 'Item Supplier MUST not be empty').trim().isLength({ min: 1 }),
-    body('description', 'Item Description MUST not be empty').trim().isLength({ min: 1 }),
-
+    
     check('*').escape(),
 
     (req, res, next) => {
       // get the errors
       let errors = validationResult(req);
-      let size = {
-        w: req.body.w,
-        h: req.body.h,
-        l: req.body.l
-      };
-
+      
       if (!errors.isEmpty()) {
-        req.body.size = size;
         req.body.url = '/stock/' + req.params.id;
         req.body.errors = errors.array()
         load(req, res, next, req.body);
       }else{
-        let stock = new Stock({
-          name: req.body.name,
-          brand: req.body.brand,
-          color: req.body.color,
-          size: size,
-          serial: req.body.serial,
-          quantity: req.body.quantity,
-          description: req.body.description,
-          category: req.body.category,
-          status: req.body.status,
-          unit_price: req.body.unit_price,
-          supplier: req.body.supplier,
-          _id: req.params.id
-        });
+        let stock = new Stock( req.body);
+        stock._id = req.params.id
+
         Stock.findByIdAndUpdate(
           req.params.id,
           stock,

@@ -13,7 +13,7 @@ block content
             data-toggle='modal' data-target='#add') New Item
           input(type='hidden')
           
-          include ../import
+          // include ../import
 
         .col-sm-12
           #add.modal.fade(
@@ -45,53 +45,8 @@ block content
                           input#name.form-control(
                             type="text" placeholder='Enter Name Of Stock Item'
                             required='true' name='name' value=(returned?returned.name:''))
-                        .col-sm-6
-                          label(for="brand") Brand
-                          select#brand.form-control(
-                            placeholder='Select a Brand' name='brand'
-                            required='true')
-                            option(value="") -- Brand --
-                            each brand in brands
-                              option(value=brand._id
-                                selected=(returned?returned.brand.toString()===brand._id.toString():false)
-                                ) #{brand.name}
-                            else
-                              option(value="") No Brands
-                    .form-group
-                      .row
-                        .col-sm-6
-                          label(for="color") Color
-                          input#color.form-control(
-                            type="text", placeholder='Item Color' 
-                            required='true' name='color' value=(returned?returned.color:''))
-                        .col-sm-6
-                          label(for="serial") Serial Number
-                          input#serial.form-control(
-                            type="text" placeholder='Serial Number for the Item'
-                            name='serial' value=(returned?returned.serial:''))
-                    .form-group
-                      label(for="size") Size
-                      .row
-                        .col-sm-4
-                          input#width.form-control(
-                            type='number' placeholder='Width' min='0'
-                            name='w' value=(returned?returned.size.w:''))
-                        .col-sm-4
-                          input#length.form-control(
-                            type='number' placeholder='Length' min='0'
-                            name='l' value=(returned?returned.size.l:''))
-                        .col-sm-4
-                          input#height.form-control(
-                            type='number' placeholder='Height' min='0'
-                            name='h' value=(returned?returned.size.h:''))
-                    
-                    .form-group
-                      .row
-                        .col-sm-6
-                          label(for="quantity") Quantity
-                          input#quantity.form-control(
-                            type='number' placeholder='Quantity' min='0'
-                            required='true' name='quantity' value=(returned?returned.quantity:''))
+                        
+                        
                         .col-sm-6
                           label(for="category") Category
                           select#category.form-control(
@@ -104,38 +59,13 @@ block content
                                 ) #{cat.name}
                             else
                               option(value="") No Categories
-                    .form-group
-                      .row
-                        .col-sm-6
-                          label(for="status") Status
-                          select#status.form-control(
-                            name="status" placeholder='Select a Status' 
-                            required='true')
-                            option(value="") -- Status --
-                            option(value="Available"
-                              selected=(returned?returned.status==='Available':false)) Available
-                            option(value="Sold Out"
-                              selected=(returned?returned.status==='Sold Out':false)) Sold Out
-                      
-                        .col-sm-6
-                          label(for="supplier") Supplier
-                          select#supplier.form-control(
-                            name="supplier" placeholder='Select a Supplier'
-                            required='true')
-                            option(value="") -- Supplier --
-                            each sup in suppliers
-                              option(value=sup._id
-                                selected=(returned?returned.supplier.toString()===sup._id.toString():false)
-                                ) #{sup.name}
-                            else
-                              option(value="") No Suppliers
-                    
-                    .form-group
-                      label(for="unit_price") Unit Price
-                      input#unit_price.form-control(
-                        type='number' placeholder='Unit Price in UGX'
-                        requird='true' name='unit_price' value=(returned?returned.unit_price:''))
 
+                    .form-group
+                      label(for="supplier") Supplier
+                      input#supplier.form-control(
+                        type="text" placeholder="Supplier's Name"
+                        required='true' name='supplier' value=(returned?returned.supplier:''))
+                        
                     .form-group
                       label(for="description") Description
                       textarea#description.form-control(
@@ -169,17 +99,17 @@ block content
 
       thead
         tr
-          th(data-field='id' data-sortable='true') #
-          th(data-field='name' data-sortable='true') Name
-          th(data-field='serial') Serial
-          th(data-field='qtty' data-sortable='true') Qtty
-          th(data-field='size') Size
-          th(data-field='price' data-sortable='true') Price [UGX]
-          th(data-field='brand') Brand
-          th(data-field='color')  Color
-          th(data-field='category') Category
-          th(data-field='status') Status
+          th(data-sortable='true') #
+          th(data-sortable='true') Name
+          th Category
+          th Supplier
+          th 
+            if user.admin
+              i Total Qtty
+            else
+              i  Branch Qtty
           th Actions
+
       tbody
         if items.length
           - let count = 0
@@ -188,14 +118,21 @@ block content
             tr
               td #{count}
               td #{item.name}
-              th #{item.serial}
-              th #{item.quantity}
-              td #{(item.size.w?item.size.w:'') + 'x' + (item.size.l?item.size.l:'') + 'x' + (item.size.h?item.size.h:'')}
-              th #{item.unit_price}
-              th #{item.brand.name}
-              th #{item.color}
-              th #{item.category.name}
-              th #{item.status}
+              td #{item.category.name}
+              td #{item.supplier}
+              td
+                // work out quantity
+                - let qty = 0
+                if user.admin
+                  each qtty in quantities
+                    if qtty.item.toString() === item._id.toString()
+                      - qty += qtty.value
+                else
+                  each qtty in quantities
+                    if qtty.branch.toString() === user.branch._id.toString() && qtty.item.toString() === item._id.toString()
+                      - qty = qtty.value
+                i= qty
+
               td
                 if user.admin
                   span.btn.btn-primary.btn-sm(
@@ -234,54 +171,7 @@ block content
                               input#name.form-control(
                                 type="text" placeholder='Enter Name Of Stock Item'
                                 required='true' name='name' value=item.name)
-                            .col-sm-6
-                              label(for="brand") Brand
-                              select#brand.form-control(
-                                placeholder='Select a Brand' name='brand'
-                                required='true')
-                                option(value="") -- Brand --
-                                each brand in brands
-                                  option(
-                                    value=brand._id 
-                                    selected=(item.brand._id.toString()===brand._id.toString())
-                                    ) #{brand.name}
-                                else
-                                  option(value="") No Brands
-                        .form-group
-                          .row
-                            .col-sm-6
-                              label(for="color") Color
-                              input#color.form-control(
-                                type="text", placeholder='Item Color' 
-                                required='true' name='color' value=item.color)
-                            .col-sm-6
-                              label(for="serial") Serial Number
-                              input#serial.form-control(
-                                type="text" placeholder='Serial Number for the Item'
-                                name='serial' value=item.serial)
-                        .form-group
-                          label(for="size") Size
-                          .row
-                            .col-sm-4
-                              input#width.form-control(
-                                type='number' placeholder='Width' min='0'
-                                name='w' value=item.size.w)
-                            .col-sm-4
-                              input#length.form-control(
-                                type='number' placeholder='Length' min='0'
-                                name='l' value=item.size.l)
-                            .col-sm-4
-                              input#height.form-control(
-                                type='number' placeholder='Height' min='0'
-                                name='h' value=item.size.h)
-                        
-                        .form-group
-                          .row
-                            .col-sm-6
-                              label(for="quantity") Quantity
-                              input#quantity.form-control(
-                                type='number' placeholder='Quantity' min='0'
-                                required='true' name='quantity' value=item.quantity)
+                            
                             .col-sm-6
                               label(for="category") Category
                               select#category.form-control(
@@ -296,38 +186,11 @@ block content
                                 else
                                   option(value="") No Categories
                         .form-group
-                          .row
-                            .col-sm-6
-                              label(for="status") Status
-                              select#status.form-control(
-                                name="status" placeholder='Select a Status' 
-                                required='true')
-                                option(
-                                  value="Available"
-                                  selected=('Available'===item.status)) Available
-                                option(
-                                  value="Sold Out"
-                                  selected=('Sold Out'===item.status)) Sold Out
-                          
-                            .col-sm-6
-                              label(for="supplier") Supplier
-                              select#supplier.form-control(
-                                name="supplier" placeholder='Select a Supplier'
-                                required='true')
-                                option(value="") -- Supplier --
-                                each sup in suppliers
-                                  option(
-                                    value=sup._id
-                                    selected=(sup._id.toString() === item.supplier._id.toString())
-                                    ) #{sup.name}
-                                else
-                                  option(value="") No Suppliers
-                        
-                        .form-group
-                          label(for="unit_price") Unit Price
-                          input#unit_price.form-control(
-                            type='number' placeholder='Unit Price in UGX'
-                            requird='true' name='unit_price' value=item.unit_price)
+                          label(for="supplier") Supplier
+                          input#supplier.form-control(
+                            type="text" placeholder="Supplier's Name"
+                            required='true' name='supplier' value=item.supplier)
+                            
                         .form-group
                           label(for="description") Description
                           textarea#description.form-control(
@@ -354,50 +217,15 @@ block content
                           h5 #[strong Name:]
                         .col-8
                           h4 #{item.name}
-                      hr
                       .row
-                        .col-4.text-right #[strong Brand:]
+                        .col-4.text-right 
+                          h5 #[strong Supplier:]
                         .col-8
-                          p #{item.brand.name}
-                      .row
-                        .col-4.text-right #[strong Color:]
-                        .col-8
-                          p #{item.color}
-                      .row
-                        .col-4.text-right #[strong Serial Number:]
-                        .col-8
-                          p #{item.serial}
-                      hr
-                      .row
-                        .col-4.text-right #[strong Width:]
-                        .col-8 #{item.size.w?item.size.w:''}
-                      .row
-                        .col-4.text-right #[strong Length:]
-                        .col-8 #{item.size.l?item.size.l:''}
-                      .row
-                        .col-4.text-right #[strong Height:]
-                        .col-8 #{item.size.h?item.size.h:''}
-                      hr
-                      .row
-                        .col-4.text-right #[strong Quantity:]
-                        .col-8
-                          p #{item.quantity}
+                          h4 #{item.supplier}
                       .row
                         .col-4.text-right #[strong Category:]
                         .col-8
                           p #{item.category.name}
-                      .row
-                        .col-4.text-right #[strong Status:]
-                        .col-8
-                          p #{item.status}
-                      .row
-                        .col-4.text-right #[strong Supplier:]
-                        .col-8
-                          p #{item.supplier.name}
-                      .row
-                        .col-4.text-right #[strong Unit Price:]
-                        .col-8
-                          p #{item.unit_price}
                       hr
                       .row
                         .col-4.text-right #[strong Description:]

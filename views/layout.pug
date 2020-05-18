@@ -67,10 +67,10 @@ html(lang='en')
                       i  Employees
                     .dropdown-divider
                     
-                    .dropdown-header External
-                    a.dropdown-item(href='/suppliers' class=(nav===5&&navS===3?'active':'')) 
-                      i.fas.fa-share 
-                      i  Supplier
+                    .dropdown-header Figures
+                    a.dropdown-item(href='/quantities' class=(nav===5&&navS===3?'active':'')) 
+                      i.fas.fa-sort-numeric-up
+                      i  Quantities
                 
                 li.nav-item.dropdown(class=(nav===6?'active':''))
                   a.nav-link.dropdown-toggle(
@@ -124,7 +124,9 @@ html(lang='en')
           .col-sm-2
 
         block content
-    
+
+        hr
+
   block footer
     footer.footer
       .container

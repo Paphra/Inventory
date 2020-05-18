@@ -1,0 +1,108 @@
+extends ../layout
+
+block content
+  
+  .container
+    .row
+      .col-sm-8
+        blockquote
+          p This shows all the Stock Quantities in the Business
+      
+      //.col-sm-4
+        button.btn.btn-success.btn-block(
+          data-toggle='modal' data-target='#add') New Supplier
+
+      //.col-sm-12
+        #add.modal.fade(
+          tab-index='-1' role='dialog' aria-labelby='AddNewBranch' 
+          aria-hidden='true')
+          
+          .modal-dialog(role='document')
+            .modal-content
+              - let url = (returned?returned.url:'')
+              form(action=(url?url:"/suppliers"), method="post")
+                .modal-header
+                  h4.modal-title #{returned?'Update':'Add New'} Supplier
+                  button.close(type='button' data-dismiss='modal' aria-label='Close')
+                    span(aria-hidden='true') &times;
+                .modal-body
+                  .errors
+                    if returned
+                      if returned.errors
+                        ul
+                          each err in returned.errors
+                            li= err.msg
+
+                  .form-group
+                    label(for="name") Supplier Name: 
+                    input#name.form-control(
+                      type="text" placeholder='Name Of the Supplier' name='name' 
+                      required='true' value=(returned?returned.name:''))
+                  .row
+                    .col-md-6
+                      .form-group
+                        label(for="email") Email Address: 
+                        input#email.form-control(
+                          type="email" placeholder='Supplier\'s Email' name='email' 
+                          required='true' value=(returned?returned.email:''))
+                    .col-md-6
+                      .form-group
+                        label(for="phone") Phone Number: 
+                        input#phon.form-control(
+                          type="tel" placeholder='Supplier\'s Phone' name='phone' 
+                          required='true' value=(returned?returned.phone:''))
+                      
+                  .form-group
+                    label(for='address') Address:
+                    textarea#address.form-control(
+                      name="address", rows='3' placeholder='Enter Supplier Address'
+                      value=(returned?returned.address:''))
+                      
+                .modal-footer
+                  button.btn.btn-success(type='submit') Save 
+                  button.btn.btn-danger(type='button' data-dismiss='modal') Close
+  
+  hr
+  .bg-white.shadow
+    table#table.table.table-compressed.table-bordered(
+      data-toggle="table"
+      data-search="true"
+      data-trim-on-search='false'
+      data-show-columns="true"
+      data-show-columns-search='true'
+      data-show-columns-toggle-all='true'
+      data-show-print='true'
+      data-show-export='true'
+      data-sort-class="table-active"
+      data-sortable="true"
+      data-pagination="true"
+      data-show-pagination-switch='true'
+      data-page-number="1"
+      data-show-toggle='true'
+      data-show-fullscreen='true'
+      data-page-list="[10, 25, 50, 100, 200, All]"
+      data-width='100%')
+
+      thead
+        tr
+          th(data-sortable='true') #
+          th(data-sortable='true') Item
+          th Branch
+          th Value
+          th Actions
+      tbody
+        if quantities.length
+          - let count = 0
+          each qtty in quantities
+            - count += 1
+            tr
+              td #{count}
+              td #{qtty.item.name}
+              td #{qtty.branch.name}
+              td #{qtty.value}
+              td
+                     
+        else
+          h4
+            i There are no Quantities in the System.
+      .col-sm-3

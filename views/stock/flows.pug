@@ -11,8 +11,9 @@ block content
         button.btn.btn-success.btn-block.btn-sm(
           data-toggle='modal' data-target='#add') New Flow
         input#items(type='hidden' value=items)
+        input#quantities(type='hidden' value=quantities)
       
-        include ../import
+        // include ../import
 
       .col-sm-12
         #add.modal.fade(
@@ -52,7 +53,7 @@ block content
                   .form-group
                     .row
                       .col-sm-6
-                        label(for="handled_by") Taken/Returned By 
+                        label(for="handled_by") Taken/Returned/Handled By 
                         input#handled_by.form-control(name="handled_by"
                           type="text" placeholder="Full Name" required=true
                           value=(returned?returned.handled_by:''))
@@ -81,6 +82,41 @@ block content
                           type='number' placeholder='Quantity' min='0'
                           required='true' name='quantity'
                           value=(returned?returned.quantity:''))
+                     
+                      .col-sm-6
+                        label(for="brand") Brand
+                        select#brand.form-control(
+                          placeholder='Select a Brand' name='brand'
+                          required='true')
+                          option(value="") -- Brand --
+                          each brand in brands
+                            option(value=brand._id
+                              selected=(returned?returned.brand.toString()===brand._id.toString():false)
+                              ) #{brand.name}
+                          else
+                            option(value="") No Brands
+
+                  .form-group
+                    .row
+                      .col-sm-6
+                        label(for="color") Color
+                        input#color.form-control(
+                          type="text", placeholder='Item Color' 
+                          name='color' value=(returned?returned.color:''))
+                      .col-sm-6
+                        label(for="size") Size
+                        input#size.form-control(
+                          type="text" placeholder='Size for the Item'
+                          name='size' value=(returned?returned.size:''))
+                                          
+                  .form-group
+                    .row
+                      .col-sm-6
+                        label(for="serial") Serial Number
+                        input#serial.form-control(
+                          type="text" placeholder='Serial Number for the Item'
+                          name='serial' value=(returned?returned.serial:''))
+                     
                       .col-sm-6
                         label(for="action") Action/Procedure
                         select#action.form-control(
@@ -89,24 +125,34 @@ block content
                           option(value="") -- Action --
                           option(value="Sold" 
                             selected=(returned?returned.action==='Sold':false)) Sold
-                          option(value="Rented" 
-                            selected=(returned?returned.action==='Rented':false)) Rented
-                          option(value="Used" 
-                            selected=(returned?returned.action==='Used':false)) Used
+                          option(value="Taken" 
+                            selected=(returned?returned.action==='Taken':false)) Taken
+                          option(value="Returned Out" 
+                            selected=(returned?returned.action==='Returned Out':false)) Returned Out
+                          option(value="Transfered Out" 
+                            selected=(returned?returned.action==='Transfered Out':false)) Transfered Out
+                          option(value="Received" 
+                            selected=(returned?returned.action==='Received':false)) Received
                           option(value="Purchased" 
                             selected=(returned?returned.action==='Purchased':false)) Purchased
                           option(value="Returned In" 
                             selected=(returned?returned.action==='Returned In':false)) Returned In
-                          option(value="Returned Out" 
-                            selected=(returned?returned.action==='Returned Out':false)) Returned Out
-                  
+                          
                   .form-group
-                    label(for="amount") Amount [If Any]
-                    input#amount.form-control(
-                      type='number' placeholder='Enter Amount'
-                      requird='true' name='amount' 
-                      value=(returned?returned.amount:''))
-
+                    .row
+                      .col-md-6
+                        label(for="amount") Amount [If Any]
+                        input#amount.form-control(
+                          type='number' placeholder='Enter Amount'
+                          name='amount' 
+                          value=(returned?returned.amount:''))
+                      .col-md-6
+                        label(for="supplier") Supplier
+                        input#suppler.form-control(
+                          type='text' placeholder="Enter Supplier's Name"
+                          name='supplier' 
+                          value=(returned?returned.supplier:''))
+                      
                   .form-group
                     .row
                       .col-sm-6
@@ -141,7 +187,7 @@ block content
                   .form-group
                     label(for="details") Details
                     textarea#details.form-control(
-                      name="details", rows="3" required='true' 
+                      name="details", rows="3" required="true"
                       placeholder='Enter the Details of the Stock Item') #{returned?returned.details:''}
 
                 .modal-footer
@@ -201,7 +247,7 @@ block content
                 span.btn.btn-success.btn-sm(
                   data-target='#view_' + flow._id data-toggle='modal')
                   i.fas.fa-eye
-                if user.admin
+                if user.admin || flow.entered_by.toString() === user._id.toString()
                   span.btn.btn-danger.btn-sm(
                     data-target='#delete_' + flow._id data-toggle='modal')
                     i.fas.fa-trash
@@ -235,7 +281,7 @@ block content
                         .form-group
                           .row
                             .col-sm-6
-                              label(for="handled_by") Taken/Returned By 
+                              label(for="handled_by") Taken/Returned/Handled By 
                               input#handled_by.form-control(name="handled_by"
                                 type="text" placeholder="Full Name" required=true
                                 value=flow.handled_by)
@@ -265,30 +311,74 @@ block content
                                 required='true' name='quantity' value=flow.quantity)
 
                             .col-sm-6
+                              label(for="brand") Brand
+                              select#brand.form-control(
+                                placeholder='Select a Brand' name='brand')
+                                option(value="") -- Brand --
+                                each brand in brands
+                                  option(value=brand._id
+                                    selected=(flow && flow.brand?flow.brand.toString()===brand._id.toString():false)
+                                    ) #{brand.name}
+                                else
+                                  option(value="") No Brands
+
+                        .form-group
+                          .row
+                            .col-sm-6
+                              label(for="color") Color
+                              input#color.form-control(
+                                type="text", placeholder='Item Color' 
+                                name='color' value=(flow?flow.color:''))
+                            .col-sm-6
+                              label(for="size") Size
+                              input#size.form-control(
+                                type="text" placeholder='Size for the Item'
+                                name='size' value=(flow?flow.size:''))
+                                                
+                        .form-group
+                          .row
+                            .col-sm-6
+                              label(for="serial") Serial Number
+                              input#serial.form-control(
+                                type="text" placeholder='Serial Number for the Item'
+                                name='serial' value=(flow?flow.serial:''))
+                                
+                            .col-sm-6
                               label(for="action") Action/Procedure
                               select#action.form-control(
                                 placeholder='Select an Action' name='action'
                                 required='true')
                                 option(value="") -- Action --
                                 option(value="Sold" 
-                                  selected=(flow.action==='Sold')) Sold
-                                option(value="Rented" 
-                                  selected=(flow.action==='Rented')) Rented
-                                option(value="Used" 
-                                  selected=(flow.action==='Used')) Used
-                                option(value="Purchased" 
-                                  selected=(flow.action==='Purchased')) Purchased
-                                option(value="Returned In" 
-                                  selected=(flow.action==='Returned In')) Returned In
+                                  selected=(flow?flow.action==='Sold':false)) Sold
+                                option(value="Taken" 
+                                  selected=(flow?flow.action==='Taken':false)) Taken
                                 option(value="Returned Out" 
-                                  selected=(flow.action==='Returned Out')) Returned Out
-                        
+                                  selected=(flow?flow.action==='Returned Out':false)) Returned Out
+                                option(value="Transfered Out" 
+                                  selected=(flow?flow.action==='Transfered Out':false)) Transfered Out
+                                option(value="Received" 
+                                  selected=(flow?flow.action==='Received':false)) Received
+                                option(value="Purchased" 
+                                  selected=(flow?flow.action==='Purchased':false)) Purchased
+                                option(value="Returned In" 
+                                  selected=(flow?flow.action==='Returned In':false)) Returned In
+                                
                         .form-group
-                          label(for="amount") Amount [If Any]
-                          input#amount.form-control(
-                            type='number' placeholder='Enter Amount'
-                            requird='true' name='amount' 
-                            value=flow.amount)
+                          .row
+                            .col-md-6
+                              label(for="amount") Amount [If Any]
+                              input#amount.form-control(
+                                type='number' placeholder='Enter Amount'
+                                requird='true' name='amount' 
+                                value=flow.amount)
+                                  
+                            .col-md-6
+                              label(for="supplier") Supplier
+                              input#suppler.form-control(
+                                type='text' placeholder="Enter Supplier's Name"
+                                name='supplier' 
+                                value=(flow?flow.supplier:''))
 
                         .form-group
                           .row
@@ -320,7 +410,7 @@ block content
                         .form-group
                           label(for="details") Details
                           textarea#details.form-control(
-                            name="details", rows="3" required='true' 
+                            name="details", rows="3" required="true"
                             placeholder='Enter the Details of the Stock Item') #{flow.details}
 
                       .modal-footer
@@ -348,16 +438,12 @@ block content
                       .row
                         - let brd = {}
                         - let cat = {}
-                        - let sup = {}
                         each brand in brands
-                          if brand._id.toString()===flow.item.brand.toString()
+                          if flow.brand && brand._id.toString()===flow.brand.toString()
                             -brd = brand
                         each caty in categories
                           if caty._id.toString()===flow.item.category.toString()
                             -cat = caty
-                        each supr in suppliers
-                          if supr._id.toString()===flow.item.supplier.toString()
-                            -sup = supr
                         .col-2.text-right #[strong Brand:]
                         .col-4 #{brd.name}
                         .col-2.text-right #[strong Color:]
@@ -366,7 +452,7 @@ block content
                         .col-2.text-right #[strong Category:]
                         .col-4 #{cat.name}
                         .col-2.text-right #[strong Supplier:]
-                        .col-4 #{sup.name}
+                        .col-4 #{flow.supplier}
                       hr
                       .row
                         .col-2.text-right #[strong Description:]
@@ -375,7 +461,7 @@ block content
                       hr
                       h4.text-center #[strong Flow Details]
                       .row
-                        .col-3.text-right #[strong Taken/Returned By:]
+                        .col-3.text-right #[strong Taken/Returned/Handled By:]
                         .col-3 #{flow.handled_by}
                         .col-3.text-right #[strong Entered By:]
                         .col-3 #{flow.entered_by.name}
@@ -425,7 +511,8 @@ block content
 block scripts
   script.
     var items = JSON.parse(document.getElementById('items').value);
-
+    var quantities = JSON.parse(document.getElementById('quantites').value);
+    
     function setQuantity(id=''){
       var el_item = document.getElementById('item'+id);
       var el_quantity = document.getElementById('quantity'+id);
@@ -433,7 +520,8 @@ block scripts
       
       for(item of items){
         if(item._id.toString() == selected_item_id){
-          el_quantity.max = item.quantity;
+          
+          // el_quantity.max = item.quantity;
           
         }
       }
